@@ -4,8 +4,7 @@ import cv2
 import random
 import math
 
-
-# ---------------- INITIALIZATION (Pagsisimula) ----------------
+# ---------------- INITIALIZATION---------------
 pygame.init() 
 pygame.mixer.init() 
 
@@ -65,8 +64,12 @@ reload_sfx = pygame.mixer.Sound("data/RELOAD.mp3")
 super_saiyan_sfx = pygame.mixer.Sound("data/SUPER_SAIYAN.mp3")
 ssj_channel = pygame.mixer.Channel(5)
 ssj_channel.set_volume(1.0)
+pygame.mixer.music.load("data/BGMUSIC.mp3")
+pygame.mixer.music.set_volume(0.5) #music
 
 # =================ZOOM & CAMERA SETTINGS =================
+video_path = "data/moving bg.mp4"
+cap = cv2.VideoCapture(video_path)
 zoom_level = 1.5
 camera_follow_enabled = True
 internal_res = (int(width / zoom_level), int(height / zoom_level))
@@ -76,12 +79,346 @@ camera_x = 0
 camera_y = 0
 camera_smoothing = 0.1
 
+
+
+
+
+
+# ================= ASSETS LOADING (Sprites & UI) =================
+
+# Buttons
+start_img = pygame.image.load("data/START_BTN.png")
+exit_img = pygame.image.load("data/EXIT_BTN.png")
+start_img = pygame.transform.scale(start_img, (280, 90))
+exit_img = pygame.transform.scale(exit_img, (280, 90))
+
+askexit_img = pygame.image.load("data/ASKEXIT.png")
+askcancel_img = pygame.image.load("data/ASKCANCEL.png")
+askexit_img = pygame.transform.scale(askexit_img, (160, 65))
+askcancel_img = pygame.transform.scale(askcancel_img, (160, 65))
+
+music_on_img = pygame.image.load("data/MUSIC_ON.png")
+music_off_img = pygame.image.load("data/MUSIC_OFF.png")
+info_img = pygame.image.load("data/INFO_BTN.png")
+press_info = pygame.image.load("data/PRESS_INFO.png")
+music_on_img = pygame.transform.scale(music_on_img, (110, 55))
+music_off_img = pygame.transform.scale(music_off_img, (110, 55))
+info_img = pygame.transform.scale(info_img, (58, 58))
+
+back_img = pygame.image.load("data/BACK_BTN.png")
+back_img = pygame.transform.scale(back_img, (75, 50))
+
+level1_img = pygame.image.load("data/LEVEL1_BTN.png")
+level2_img = pygame.image.load("data/LEVEL2_BTN.png")
+level3_img = pygame.image.load("data/LEVEL3_BTN.png")
+level1_select = pygame.image.load("data/LEVEL1_SELECT.png")
+level2_select = pygame.image.load("data/LEVEL2_SELECT.png")
+level3_select = pygame.image.load("data/LEVEL3_SELECT.png")
+start_level_img = pygame.image.load("data/START_LEVEL.png") 
+
+level1_img = pygame.transform.scale(level1_img, (240, 330))
+level2_img = pygame.transform.scale(level2_img, (240, 320))
+level3_img = pygame.transform.scale(level3_img, (240, 320))
+level1_select = pygame.transform.scale(level1_select, (240, 320))
+level2_select = pygame.transform.scale(level2_select, (240, 320))
+level3_select = pygame.transform.scale(level3_select, (240, 320))
+start_level_img = pygame.transform.scale(start_level_img, (220, 70))
+select_level_img = pygame.image.load("data/PLSSELECT_LEVEL.png")
+select_level_img = pygame.transform.scale(select_level_img, (400, 260))
+
+left_arrow_img = pygame.image.load("data/LEFT_ARROW.png")
+right_arrow_img = pygame.image.load("data/RIGHT_ARROW.png")
+confirm_char_img = pygame.image.load("data/CONFIRM_CHARACTER.png")
+left_arrow_img = pygame.transform.scale(left_arrow_img, (140, 120))
+right_arrow_img = pygame.transform.scale(right_arrow_img, (140, 120))
+confirm_char_img = pygame.transform.scale(confirm_char_img, (220, 60))
+
+warrior_name_img = pygame.image.load("data/SELECTING_WARRIOR.png")
+hero_name_img = pygame.image.load("data/SELECTING_HERO.png")
+warrior_name_img = pygame.transform.scale(warrior_name_img, (300, 300))
+hero_name_img = pygame.transform.scale(hero_name_img, (250, 300))
+skip_img = pygame.image.load("data/SKIP_BTN.jpg")
+skip_img = pygame.transform.scale(skip_img, (100, 45)) 
+
+
+# Backgrounds
+second_bg = pygame.image.load("data/SECONDBG.jpg")
+second_bg = pygame.transform.scale(second_bg, (width, height))
+character_bg = pygame.image.load("data/CHARACTERBG.png") 
+character_bg = pygame.transform.scale(character_bg, (width, height))
+exit_popup = pygame.image.load("data/MAINMENU_BLUR.png")
+exit_popup = pygame.transform.scale(exit_popup, (width, height))
+second_blur = pygame.image.load("data/SECONDBG_BLUR.png")
+second_blur = pygame.transform.scale(second_blur, (width, height))
+game_bg1 = pygame.transform.scale(pygame.image.load("data/BGGAME_LEVEL1.jpg"), (width, height))
+game_bg2 = pygame.transform.scale(pygame.image.load("data/BGGAME_LEVEL2.jpg"), (width, height))
+game_bg3 = pygame.transform.scale(pygame.image.load("data/BGGAME_LEVEL3.jpg"), (width, height))
+
+# Character Sprites
+hero_orig = pygame.image.load("data/HERO.png")
+hero_right = pygame.transform.scale(hero_orig, (45, 65)).convert_alpha()
+hero_left = pygame.transform.flip(hero_right, True, False)
+hero_aiming = pygame.image.load("data/HERO AIMING.png")
+hero_aiming_right = pygame.transform.scale(hero_aiming, (45, 65)).convert_alpha()
+hero_aiming_left = pygame.transform.flip(hero_aiming_right, True, False)
+
+warrior_orig = pygame.image.load("data/WARRIOR.png")
+warrior_right = pygame.transform.scale(warrior_orig, (75, 80)).convert_alpha()
+warrior_left = pygame.transform.flip(warrior_right, True, False)
+warrior_aiming = pygame.image.load("data/WARRIOR AIMING.png")
+warrior_aiming_right = pygame.transform.scale(warrior_aiming, (75, 80)).convert_alpha()
+warrior_aiming_left = pygame.transform.flip(warrior_aiming_right, True, False)
+
+# Items
+Orbs = pygame.image.load("data/ORBS.png")
+orb_game_img = pygame.transform.scale(Orbs, (25, 25))
+orb_ui_img = pygame.transform.scale(Orbs, (35, 35))
+key_orig = pygame.image.load("data/KEYS.png").convert_alpha()
+key_game_img = pygame.transform.scale(key_orig, (25, 35)) 
+key_ui_img = pygame.transform.scale(key_orig, (25, 35))
+bullet = pygame.image.load("data/BULLET.png")
+bullet_ui_img = pygame.transform.scale(bullet, (35, 35))
+
+#Enemies
+enemy1_orig = pygame.image.load("data/ENEMY1.png").convert_alpha()
+enemy1_left_surf = pygame.transform.scale(enemy1_orig, (40, 55))
+enemy1_right_surf = pygame.transform.flip(pygame.transform.scale(enemy1_orig, (40, 55)), True, False)
+enemy2_orig = pygame.image.load("data/ENEMY2.png").convert_alpha()
+enemy2_surf = pygame.transform.scale(enemy2_orig, (80, 80))
+enemy2_surf_right = pygame.transform.flip(enemy2_surf, True, False)
+enemy2_shh_orig = pygame.image.load("data/ENEMY2_SHH.png").convert_alpha()
+enemy2_shh_surf = pygame.transform.scale(enemy2_shh_orig, (80, 80))
+enemy2_shh_right = pygame.transform.flip(enemy2_shh_surf, True, False)
+enemy3_orig = pygame.image.load("data/ENEMY3.png").convert_alpha()
+enemy3_surf = pygame.transform.scale(enemy3_orig, (60, 60)) 
+
+door_orig = pygame.image.load("data/RIGHT_DOOR.png").convert_alpha()
+door_img = pygame.transform.scale(door_orig, (60, 60))
+victory = pygame.image.load("data/VICTORY.png").convert_alpha()
+tuts_complete_img = pygame.image.load("data/TUTS_COMPLETE.png").convert_alpha()
+defeat = pygame.image.load("data/DEFEAT.png")
+
+#Panels
+panel_exit = pygame.image.load("data/PANEL_EXIT.png")
+panel_exit = pygame.transform.scale(panel_exit, (450, 270))
+
+# ================= UI RECTANGLES & FONTS =================
+start_rect = start_img.get_rect(center=(width//2, height - 180))
+exit_rect = exit_img.get_rect(center=(width//2, height - 85))
+panel_rect = panel_exit.get_rect(center=(width//2, height//2))
+askexit_rect = askexit_img.get_rect(center=(width//2 - 100, height//2 + 55))
+askcancel_rect = askcancel_img.get_rect(center=(width//2 + 100, height//2 + 55))
+back_rect = back_img.get_rect(topleft=(20, 20))
+level1_rect = level1_img.get_rect(center=(width//2 - 300, height//2 + 50))
+level2_rect = level2_img.get_rect(center=(width//2, height//2 + 50))
+level3_rect = level3_img.get_rect(center=(width//2 + 300, height//2 + 50))
+start_level_rect = start_level_img.get_rect(center=(width//2, height - 52))
+left_arrow_rect = left_arrow_img.get_rect(center=(width//2 - 265, height//2 + 30))
+right_arrow_rect = right_arrow_img.get_rect(center=(width//2 + 265, height//2 + 30))
+confirm_char_rect = confirm_char_img.get_rect(center=(width//2, height - 45))
+skip_rect = skip_img.get_rect(bottomright=(width - 40, height - 60)) 
+music_btn_rect = music_on_img.get_rect(topright=(width - 20, 20))
+info_rect = info_img.get_rect(topright=(width - 25, 85))
+warrior_name_rect = warrior_name_img.get_rect(center=(width//2 + 10, height//2 + 40))
+hero_name_rect = hero_name_img.get_rect(center=(width//2 + 15, height//2 + 30))
+door_rect = door_img.get_rect(bottomright=(885, 430)) 
+music_box_rect = pygame.Rect(width - 240, 85, 220, 55) 
+prev_music_rect = pygame.Rect(width - 235, 100, 30, 30)
+next_music_rect = pygame.Rect(width - 55, 100, 30, 30)
+orb_font = pygame.font.SysFont("Arial", 28, bold=True)
+
+
+# ================= GAME STATE VARIABLES =================
+
 show_platforms = False
+show_second_menu = False
+show_story_screen = False
+show_character_screen = False 
+show_actual_game = False 
+selected_level = 0 
+game_world_size = (2500, 1200) 
+selected_char_index = 0 
+active_hero_right = warrior_right
+active_hero_left = warrior_left
+active_aiming_right = warrior_aiming_right
+active_aiming_left = warrior_aiming_left
 
-# =================VIDEO BACKGROUND MAIN MENU CONFIG =================
-video_path = "data/moving bg.mp4"
-cap = cv2.VideoCapture(video_path)
+collected_orbs = 0
+collected_keys = 0
+is_coming_from_tutorial = False
 
+# Player Stats & Physics
+hero_x, hero_y = 100, 500
+hero_vel_y = 0
+hero_speed = 4
+gravity = 0.5
+jump_height = -13
+is_jumping = False
+jump_count = 0
+jump_buffer_used = False
+facing_right = True
+is_hit_aiming = False 
+
+# ---  HEALTH VARIABLES ---
+hero_max_health = 200
+hero_health = 200
+invincibility_timer = 0
+
+# --- DEATH ANIMATION STATE ---
+is_dead = False
+death_blink_phase = False 
+death_timer = 0
+death_blink_timer = 0
+
+# ---SPAWN ANIMATION LOGIC ---
+is_spawning = False
+hero_spawn_alpha = 255  
+spawn_timer = 0
+
+
+# --- SUPER POWER VARIABLES (MAGE) ---
+charge_value = 0
+is_charging = False
+power_active = False
+power_timer = 0
+
+# --- DASH MECHANIC VARIABLES ---
+last_click_time = 0
+dash_cooldown = 0
+is_dashing = False
+dash_timer = 0
+dash_direction = 1 
+hero_tilt = 0
+target_tilt = 0
+
+# --- EFFECTS & HOVER VARIABLES ---
+hover_timer = 0
+hover_offset = 0
+
+shoot_cooldown = 0
+warrior_ammo = 15
+warrior_max_ammo = 15
+is_reloading = False
+reload_timer = 0
+
+# Loading & Misc
+# ---------------- LOADING BAR ----------------
+loading_progress = 0
+loading_speed = 5
+loading_done = False
+
+#music
+current_music_idx = 0
+music_started = False
+is_muted = False 
+
+is_victory = False
+victory_anim_timer = 0
+show_victory_screen = False
+
+#Panel Setup
+show_exit_popup = False 
+show_exit_confirm = False 
+
+show_info_panel = False
+blink_timer = 0
+blink_visible = True
+font = pygame.font.SysFont(None, 26)
+
+#---Need to Select Levels---
+
+show_warning = False
+warning_alpha = 0
+warning_timer = 0
+fade_in = True
+
+# ---------------- TEXT FADE ----------------
+font_big = pygame.font.SysFont(None, 34)
+text_alpha = 0 
+fade_speed = 2
+story_text = "Are you brave enough to overcome the shadows and find the way out?"
+# AUTO-TRANSITION TIMER ---
+story_display_timer = 0
+story_max_duration = 100 
+#=============================================
+
+
+# Lists for entities
+bullets = []
+enemy1_bullets = []
+enemy2_bullets = []
+dropped_orbs = []
+dropped_keys = []
+explosion_particles = []
+particles = [] 
+shockwaves = []
+ghost_trails = []  
+scarf_particles = [] 
+spawn_fx_particles = []
+enemies = []
+
+# ================= TUTORIAL SYSTEM VARIABLES =================
+tutorial_active = False
+tutorial_step = 0
+previous_tutorial_step = -1
+tutorial_prompts = [
+    "Press A and D to Move",            # Step 0
+    "Press W or SPACE to Jump",         # Step 1
+    "Double Click LEFT MOUSE to Dash",  # Step 2
+    "Right Click to Aim and Shoot",     # Step 3
+    "ELIMINATE ENEMIES AND FIND ALL THE KEYS", # Step 4
+    "ALL ENEMIES ARE ELIMINATED!",      # Step 5 
+    "YOU HAVE FOUND ALL THE KEYS!",     # Step 6
+    "LOCATE THE HIDDEN EXIT"            # Step 7 (Final Mission)
+]
+
+
+# ================= PINALAWAK NA PLATFORMS (TRUE=Solid, FALSE=One-way) =================
+platforms = [
+
+    [pygame.Rect(0, 580, 2500, 100), True],
+    [pygame.Rect(0, 480, 128, 30), False],
+    [pygame.Rect(0, 372, 120, 30), True],
+    [pygame.Rect(0, 0, 2500, 60), True],
+    [pygame.Rect(0, 60, 289, 42), True],
+
+    [pygame.Rect(224, 295, 165, 90), True],
+
+    [pygame.Rect(0, 372, 125, 30), False],
+    [pygame.Rect(0, 255, 115, 30), True],
+    [pygame.Rect(0, 172, 490, 55), True],
+
+    [pygame.Rect(243, 480, 193, 30), True],
+    [pygame.Rect(375, 127, 61, 354), True],
+
+    [pygame.Rect(630, 127, 80, 455), True],
+
+    [pygame.Rect(570, 490, 68, 15), False], #ito
+    [pygame.Rect(570, 360, 68, 10), False], #ito
+    [pygame.Rect(580, 230, 68, 50), True],
+
+    [pygame.Rect(435, 420, 65, 15), False], #ito
+    [pygame.Rect(435, 303, 65, 15), False], #ito
+
+    [pygame.Rect(709, 128, 60, 15), True],
+    [pygame.Rect(779, 215, 60, 15), True],
+    [pygame.Rect(893, 140, 60, 15), True],
+    [pygame.Rect(946, 128, 140, 15), True],
+
+    [pygame.Rect(990, 139, 80, 350), True],
+    [pygame.Rect(710, 430, 280, 70), True],
+
+    [pygame.Rect(830, 310, 60, 15), True],
+    [pygame.Rect(760, 340, 200, 15), True],
+
+    [pygame.Rect(1131, 206, 40, 10), False],
+    [pygame.Rect(1070, 287, 30, 10), False],
+    [pygame.Rect(1128, 368, 30, 15), False],
+    [pygame.Rect(1070, 454, 30, 15), False]
+]
+
+
+# ================= FUNCTIONS & CLASSES =================
 def get_video_frame():
     success, frame = cap.read()
     if not success:
@@ -95,142 +432,6 @@ def get_video_frame():
         frame = pygame.transform.scale(frame, (width, height))
         return frame
     return None
-
-
-# ---------------- MAIN BUTTONS LOADING ----------------
-start_img = pygame.image.load("data/START_BTN.png")
-exit_img = pygame.image.load("data/EXIT_BTN.png")
-start_img = pygame.transform.scale(start_img, (280, 90))
-exit_img = pygame.transform.scale(exit_img, (280, 90))
-music_on_img = pygame.image.load("data/MUSIC_ON.png")
-music_off_img = pygame.image.load("data/MUSIC_OFF.png")
-info_img = pygame.image.load("data/INFO_BTN.png")
-
-music_on_img = pygame.transform.scale(music_on_img, (110, 55))
-music_off_img = pygame.transform.scale(music_off_img, (110, 55))
-info_img = pygame.transform.scale(info_img, (58, 58))
-
-music_btn_rect = music_on_img.get_rect(topright=(width - 20, 20))
-info_rect = info_img.get_rect(topright=(width - 25, 85))
-current_music_idx = 0
-music_box_rect = pygame.Rect(width - 240, 85, 220, 55) 
-prev_music_rect = pygame.Rect(width - 235, 100, 30, 30)
-next_music_rect = pygame.Rect(width - 55, 100, 30, 30)
-# =================================================================
-
-start_rect = start_img.get_rect(center=(width//2, height - 180))
-exit_rect = exit_img.get_rect(center=(width//2, height - 85))
-second_bg = pygame.image.load("data/SECONDBG.jpg")
-second_bg = pygame.transform.scale(second_bg, (width, height))
-
-back_img = pygame.image.load("data/BACK_BTN.png")
-back_img = pygame.transform.scale(back_img, (75, 50))
-back_rect = back_img.get_rect(topleft=(20, 20))
-
-level1_img = pygame.image.load("data/LEVEL1_BTN.png")
-level2_img = pygame.image.load("data/LEVEL2_BTN.png")
-level3_img = pygame.image.load("data/LEVEL3_BTN.png")
-
-level1_select = pygame.image.load("data/LEVEL1_SELECT.png")
-level2_select = pygame.image.load("data/LEVEL2_SELECT.png")
-level3_select = pygame.image.load("data/LEVEL3_SELECT.png")
-
-start_level_img = pygame.image.load("data/START_LEVEL.png") 
-
-level1_img = pygame.transform.scale(level1_img, (240, 330))
-level2_img = pygame.transform.scale(level2_img, (240, 320))
-level3_img = pygame.transform.scale(level3_img, (240, 320))
-
-level1_select = pygame.transform.scale(level1_select, (240, 320))
-level2_select = pygame.transform.scale(level2_select, (240, 320))
-level3_select = pygame.transform.scale(level3_select, (240, 320))
-
-start_level_img = pygame.transform.scale(start_level_img, (220, 70))
-
-level1_rect = level1_img.get_rect(center=(width//2 - 300, height//2 + 50))
-level2_rect = level2_img.get_rect(center=(width//2, height//2 + 50))
-level3_rect = level3_img.get_rect(center=(width//2 + 300, height//2 + 50))
-start_level_rect = start_level_img.get_rect(center=(width//2, height - 52))
-character_bg = pygame.image.load("data/CHARACTERBG.png") 
-character_bg = pygame.transform.scale(character_bg, (width, height))
-show_character_screen = False 
-left_arrow_img = pygame.image.load("data/LEFT_ARROW.png")
-right_arrow_img = pygame.image.load("data/RIGHT_ARROW.png")
-confirm_char_img = pygame.image.load("data/CONFIRM_CHARACTER.png")
-left_arrow_img = pygame.transform.scale(left_arrow_img, (140, 120))
-right_arrow_img = pygame.transform.scale(right_arrow_img, (140, 120))
-confirm_char_img = pygame.transform.scale(confirm_char_img, (220, 60))
-warrior_name_img = pygame.image.load("data/SELECTING_WARRIOR.png")
-hero_name_img = pygame.image.load("data/SELECTING_HERO.png")
-warrior_name_img = pygame.transform.scale(warrior_name_img, (300, 300))
-hero_name_img = pygame.transform.scale(hero_name_img, (250, 300))
-warrior_name_rect = warrior_name_img.get_rect(center=(width//2 + 10, height//2 + 40))
-hero_name_rect = hero_name_img.get_rect(center=(width//2 + 15, height//2 + 30))
-# =====================================================================
-
-left_arrow_rect = left_arrow_img.get_rect(center=(width//2 - 265, height//2 + 30))
-right_arrow_rect = right_arrow_img.get_rect(center=(width//2 + 265, height//2 + 30))
-confirm_char_rect = confirm_char_img.get_rect(center=(width//2, height - 45))
-skip_img = pygame.image.load("data/SKIP_BTN.jpg")
-skip_img = pygame.transform.scale(skip_img, (100, 45)) 
-skip_rect = skip_img.get_rect(bottomright=(width - 40, height - 60)) 
-
-show_second_menu = False
-show_story_screen = False
-selected_level = 0 
-game_world_size = (2500, 1200) 
-game_bg1 = pygame.transform.scale(pygame.image.load("data/BGGAME_LEVEL1.jpg"), (width, height))
-game_bg2 = pygame.transform.scale(pygame.image.load("data/BGGAME_LEVEL2.jpg"), (width, height))
-game_bg3 = pygame.transform.scale(pygame.image.load("data/BGGAME_LEVEL3.jpg"), (width, height))
-
-show_actual_game = False 
-
-hero_orig = pygame.image.load("data/HERO.png")
-hero_right = pygame.transform.scale(hero_orig, (45, 65)).convert_alpha()
-hero_left = pygame.transform.flip(hero_right, True, False)
-
-hero_aiming = pygame.image.load("data/HERO AIMING.png")
-hero_aiming_right = pygame.transform.scale(hero_aiming, (45, 65)).convert_alpha()
-hero_aiming_left = pygame.transform.flip(hero_aiming_right, True, False)
-
-Orbs = pygame.image.load("data/ORBS.png")
-
-warrior_orig = pygame.image.load("data/WARRIOR.png")
-warrior_right = pygame.transform.scale(warrior_orig, (75, 80)).convert_alpha()
-warrior_left = pygame.transform.flip(warrior_right, True, False)
-
-warrior_aiming = pygame.image.load("data/WARRIOR AIMING.png")
-warrior_aiming_right = pygame.transform.scale(warrior_aiming, (75, 80)).convert_alpha()
-warrior_aiming_left = pygame.transform.flip(warrior_aiming_right, True, False)
-
-# ================= CHARACTER SELECTION VARIABLES =================
-# 0 = Warrior, 1 = Hero
-selected_char_index = 0 
-active_hero_right = warrior_right
-active_hero_left = warrior_left
-active_aiming_right = warrior_aiming_right
-active_aiming_left = warrior_aiming_left
-# ==========================================================================
-
-# ================= ORB SYSTEM CLASS & VARIABLES =================
-orb_game_img = pygame.transform.scale(Orbs, (25, 25))
-orb_ui_img = pygame.transform.scale(Orbs, (35, 35))
-collected_orbs = 0
-orb_font = pygame.font.SysFont("Arial", 28, bold=True)
-
-# ================= KEYS SYSTEM CLASS & VARIABLES =================
-key_orig = pygame.image.load("data/KEYS.png").convert_alpha()
-key_game_img = pygame.transform.scale(key_orig, (25, 35)) 
-key_ui_img = pygame.transform.scale(key_orig, (25, 35))
-collected_keys = 0
-
-victory = pygame.image.load("data/VICTORY.png").convert_alpha()
-tuts_complete_img = pygame.image.load("data/TUTS_COMPLETE.png").convert_alpha()
-is_coming_from_tutorial = False
-
-bullet = pygame.image.load("data/BULLET.png")
-bullet_ui_img = pygame.transform.scale(bullet, (35, 35))
-
 
 class CollectibleOrb:
     def __init__(self, x, y):
@@ -267,8 +468,7 @@ class CollectibleKey:
         if self.alive:
             surface.blit(key_game_img, (self.rect.x - cam_x, self.rect.y + self.offset - cam_y))
 
-dropped_orbs = []
-dropped_keys = []
+
 
 # ================= ENEMY EFFECTS CLASSES =================
 class ExplosionParticle:
@@ -288,16 +488,14 @@ class ExplosionParticle:
             pygame.draw.circle(p_surf, (*self.color, alpha), (3, 3), 3)
             surface.blit(p_surf, (self.x - cam_x, self.y - cam_y))
 
-explosion_particles = []
+
 
 def trigger_explosion(x, y):
     for _ in range(30):
         explosion_particles.append(ExplosionParticle(x, y, (255, 100, 0)))
         explosion_particles.append(ExplosionParticle(x, y, (255, 255, 255)))
 
-enemy1_orig = pygame.image.load("data/ENEMY1.png").convert_alpha()
-enemy1_left_surf = pygame.transform.scale(enemy1_orig, (40, 55))
-enemy1_right_surf = pygame.transform.flip(pygame.transform.scale(enemy1_orig, (40, 55)), True, False)
+
 
 class Enemy1Bullet:
     def __init__(self, x, y, direction):
@@ -380,13 +578,6 @@ class Enemy1Stationary:
             pygame.draw.rect(surface, (100, 0, 0), (bx, by, bar_w, 5))
             pygame.draw.rect(surface, (0, 255, 100), (bx, by, int((self.health/self.max_health)*bar_w), 5))
 
-enemy1_bullets = []
-enemy2_orig = pygame.image.load("data/ENEMY2.png").convert_alpha()
-enemy2_surf = pygame.transform.scale(enemy2_orig, (80, 80))
-enemy2_surf_right = pygame.transform.flip(enemy2_surf, True, False)
-enemy2_shh_orig = pygame.image.load("data/ENEMY2_SHH.png").convert_alpha()
-enemy2_shh_surf = pygame.transform.scale(enemy2_shh_orig, (80, 80))
-enemy2_shh_right = pygame.transform.flip(enemy2_shh_surf, True, False)
 
 class Enemy2Bullet:
     def __init__(self, x, y, angle):
@@ -471,9 +662,6 @@ class Enemy2Stationary:
             pygame.draw.rect(surface, (100, 0, 0), (bx, by, 60, 5))
             pygame.draw.rect(surface, (0, 255, 100), (bx, by, int((self.health/self.max_health)*60), 5))
 
-enemy2_bullets = []
-enemy3_orig = pygame.image.load("data/ENEMY3.png").convert_alpha()
-enemy3_surf = pygame.transform.scale(enemy3_orig, (60, 60)) 
 
 class Enemy3Jumping:
     def __init__(self, x, y):
@@ -558,82 +746,6 @@ stationary_enemies = [
 
 dropped_keys.append(CollectibleKey(220, 140))
 
-# ================= VICTORY DOOR SYSTEM =================
-door_orig = pygame.image.load("data/RIGHT_DOOR.png").convert_alpha()
-door_img = pygame.transform.scale(door_orig, (60, 60))
-door_rect = door_img.get_rect(bottomright=(885, 430)) 
-
-is_victory = False
-victory_anim_timer = 0
-show_victory_screen = False
-
-# ---------------- PLAYER PHYSICS (MAY HEALTH NA) ----------------
-hero_x, hero_y = 100, 500
-hero_vel_y = 0
-hero_speed = 4
-gravity = 0.5
-jump_height = -13
-is_jumping = False
-jump_count = 0
-jump_buffer_used = False
-facing_right = True
-is_hit_aiming = False 
-
-# ---  HEALTH VARIABLES ---
-hero_max_health = 200
-hero_health = 200
-invincibility_timer = 0
-
-# --- DEATH ANIMATION STATE ---
-is_dead = False
-death_blink_phase = False 
-death_timer = 0
-death_blink_timer = 0
-
-# ================= SPAWN ANIMATION LOGIC=================
-hero_spawn_alpha = 255  
-is_spawning = False
-spawn_timer = 0
-spawn_fx_particles = []
-
-# ================= SUPER POWER VARIABLES (MAGE)=================
-charge_value = 0
-is_charging = False
-power_active = False
-power_timer = 0
-particles = [] 
-shockwaves = []
-
-# =================DASH MECHANIC VARIABLES =================
-last_click_time = 0
-dash_cooldown = 0
-is_dashing = False
-dash_timer = 0
-dash_direction = 1 
-ghost_trails = []  
-scarf_particles = [] 
-hero_tilt = 0
-target_tilt = 0
-
-# --- EFFECTS & HOVER VARIABLES ---
-hover_timer = 0
-hover_offset = 0
-
-# ================= TUTORIAL SYSTEM VARIABLES =================
-tutorial_active = False
-tutorial_step = 0
-previous_tutorial_step = -1
-tutorial_prompts = [
-    "Press A and D to Move",            # Step 0
-    "Press W or SPACE to Jump",         # Step 1
-    "Double Click LEFT MOUSE to Dash",  # Step 2
-    "Right Click to Aim and Shoot",     # Step 3
-    "ELIMINATE ENEMIES AND FIND ALL THE KEYS", # Step 4
-    "ALL ENEMIES ARE ELIMINATED!",      # Step 5 
-    "YOU HAVE FOUND ALL THE KEYS!",     # Step 6
-    "LOCATE THE HIDDEN EXIT"            # Step 7 (Final Mission)
-]
-
 # ======================================================================
 
 def create_particles(x, y, color=CYAN):
@@ -679,12 +791,6 @@ class Bullet:
                 surface.blit(s, (self.x - r - cam_x, self.y - r - cam_y))
             pygame.draw.circle(surface, WHITE, (int(self.x - cam_x), int(self.y - cam_y)), self.radius)
 
-bullets = []
-shoot_cooldown = 0
-warrior_ammo = 15
-warrior_max_ammo = 15
-is_reloading = False
-reload_timer = 0
 
 class MagicOrb:
     def draw(self, surface, x, y):
@@ -697,6 +803,7 @@ class MagicOrb:
         pygame.draw.circle(surface, (200, 100, 255), (x, y), 13, 2)
 
 magic_visual = MagicOrb()
+
 
 # =================ENEMY CLASS =================
 class Enemy:
@@ -726,111 +833,6 @@ class Enemy:
             pygame.draw.circle(surface, RED, (self.rect.x - cam_x + 15, self.rect.y - cam_y + 20), 4)
             pygame.draw.circle(surface, RED, (self.rect.x - cam_x + 35, self.rect.y - cam_y + 20), 4)
 
-enemies = []
-
-# ================= PINALAWAK NA PLATFORMS (TRUE=Solid, FALSE=One-way) =================
-platforms = [
-
-    [pygame.Rect(0, 580, 2500, 100), True],
-    [pygame.Rect(0, 480, 128, 30), False],
-    [pygame.Rect(0, 372, 120, 30), True],
-    [pygame.Rect(0, 0, 2500, 60), True],
-    [pygame.Rect(0, 60, 289, 42), True],
-
-    [pygame.Rect(224, 295, 165, 90), True],
-
-    [pygame.Rect(0, 372, 125, 30), False],
-    [pygame.Rect(0, 255, 115, 30), True],
-    [pygame.Rect(0, 172, 490, 55), True],
-
-    [pygame.Rect(243, 480, 193, 30), True],
-    [pygame.Rect(375, 127, 61, 354), True],
-
-    [pygame.Rect(630, 127, 80, 455), True],
-
-    [pygame.Rect(570, 490, 68, 15), False], #ito
-    [pygame.Rect(570, 360, 68, 10), False], #ito
-    [pygame.Rect(580, 230, 68, 50), True],
-
-    [pygame.Rect(435, 420, 65, 15), False], #ito
-    [pygame.Rect(435, 303, 65, 15), False], #ito
-
-    [pygame.Rect(709, 128, 60, 15), True],
-    [pygame.Rect(779, 215, 60, 15), True],
-    [pygame.Rect(893, 140, 60, 15), True],
-    [pygame.Rect(946, 128, 140, 15), True],
-
-    [pygame.Rect(990, 139, 80, 350), True],
-    [pygame.Rect(710, 430, 280, 70), True],
-
-    [pygame.Rect(830, 310, 60, 15), True],
-    [pygame.Rect(760, 340, 200, 15), True],
-
-    [pygame.Rect(1131, 206, 40, 10), False],
-    [pygame.Rect(1070, 287, 30, 10), False],
-    [pygame.Rect(1128, 368, 30, 15), False],
-    [pygame.Rect(1070, 454, 30, 15), False]
-]
-
-select_level_img = pygame.image.load("data/PLSSELECT_LEVEL.png")
-select_level_img = pygame.transform.scale(select_level_img, (400, 260))
-show_warning = False
-warning_alpha = 0
-warning_timer = 0
-fade_in = True
-
-# ---------------- TEXT FADE ----------------
-font_big = pygame.font.SysFont(None, 34)
-text_alpha = 0 
-fade_speed = 2
-story_text = "Are you brave enough to overcome the shadows and find the way out?"
-
-# AUTO-TRANSITION TIMER ---
-story_display_timer = 0
-story_max_duration = 100 
-
-# ---------------- LOADING BAR ----------------
-loading_progress = 0
-loading_speed = 5
-loading_done = False
-
-# ---------------- MUSIC SETTINGS ----------------
-pygame.mixer.music.load("data/BGMUSIC.mp3")
-pygame.mixer.music.set_volume(0.5) #music
-music_started = False
-is_muted = False 
-
-# ---------------- OVERLAYS / POPUPS ----------------
-exit_popup = pygame.image.load("data/MAINMENU_BLUR.png")
-exit_popup = pygame.transform.scale(exit_popup, (width, height))
-second_blur = pygame.image.load("data/SECONDBG_BLUR.png")
-second_blur = pygame.transform.scale(second_blur, (width, height))
-
-
-show_exit_popup = False 
-show_exit_confirm = False 
-
-# Info Panel Setup
-press_info = pygame.image.load("data/PRESS_INFO.png")
-
-show_info_panel = False
-blink_timer = 0
-blink_visible = True
-font = pygame.font.SysFont(None, 26)
-
-# Exit Panel Setup
-panel_exit = pygame.image.load("data/PANEL_EXIT.png")
-panel_exit = pygame.transform.scale(panel_exit, (450, 270))
-askexit_img = pygame.image.load("data/ASKEXIT.png")
-askcancel_img = pygame.image.load("data/ASKCANCEL.png")
-askexit_img = pygame.transform.scale(askexit_img, (160, 65))
-askcancel_img = pygame.transform.scale(askcancel_img, (160, 65))
-
-panel_rect = panel_exit.get_rect(center=(width//2, height//2))
-askexit_rect = askexit_img.get_rect(center=(width//2 - 100, height//2 + 55))
-askcancel_rect = askcancel_img.get_rect(center=(width//2 + 100, height//2 + 55))
-
-defeat = pygame.image.load("data/DEFEAT.png")
 
 # ================= MAIN GAME LOOP =================
 
