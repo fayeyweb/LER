@@ -4,11 +4,16 @@ import cv2
 import random
 import math
 
-# ---------------- INITIALIZATION---------------
+# =================================================================
+#                         INITIALIZATION                          
+# =================================================================
+# Pag-set up ng Pygame and audio mixer
 pygame.init() 
 pygame.mixer.init() 
 
-# ---------------- SCREEN SETUP (Configuration ng Window) ----------------
+# =================================================================
+#                          SCREEN SETUP                           
+# =================================================================
 width = 1152
 height = 648
 screen = pygame.display.set_mode((width, height)) 
@@ -16,7 +21,9 @@ pygame.display.set_caption("LOST EXIT REALM")
 
 clock = pygame.time.Clock()
 
-# ---------------- COLORS (Standard RGB values) ----------------
+# =================================================================
+#                        COLORS & ASSETS                          
+# =================================================================
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 MOSSY_BRICK = (38, 55, 53)
@@ -26,7 +33,9 @@ CYAN = (0, 255, 255)
 GOLD = (255, 215, 0)
 RED = (200, 0, 0)
 
-# ================ MUSIC PLAYLIST IN GAME=================
+# =================================================================
+#                        MUSIC & PLAYLIST                         
+# =================================================================
 music_playlist = [
     "data/MAIN_MUSICGAME.mp3", # original na BGM
     "data/Pixelland.mp3", 
@@ -42,7 +51,9 @@ music_titles = [
     "Zombie Tsunami",
 ]
 
-# =================SOUND EFFECTS =================
+# =================================================================
+#                           SOUND EFFECTS                         
+# =================================================================
 click_sfx = pygame.mixer.Sound("data/CLICK.wav") 
 enemy1_hit_sfx = pygame.mixer.Sound("data/ENEMY1HIT.wav")
 enemy2_hit_sfx = pygame.mixer.Sound("data/ENEMY2HIT.wav")
@@ -67,7 +78,9 @@ ssj_channel.set_volume(1.0)
 pygame.mixer.music.load("data/BGMUSIC.mp3")
 pygame.mixer.music.set_volume(0.5) #music
 
-# =================ZOOM & CAMERA SETTINGS =================
+# =================================================================
+#                      ZOOM & CAMERA SETTINGS                     
+# =================================================================
 video_path = "data/moving bg.mp4"
 cap = cv2.VideoCapture(video_path)
 zoom_level = 1.5
@@ -79,12 +92,9 @@ camera_x = 0
 camera_y = 0
 camera_smoothing = 0.1
 
-
-
-
-
-
-# ================= ASSETS LOADING (Sprites & UI) =================
+# =================================================================
+#                      ASSETS LOADING (UI)                        
+# =================================================================
 
 # Buttons
 start_img = pygame.image.load("data/START_BTN.png")
@@ -141,7 +151,9 @@ skip_img = pygame.image.load("data/SKIP_BTN.jpg")
 skip_img = pygame.transform.scale(skip_img, (100, 45)) 
 
 
-# Backgrounds
+# =================================================================
+#                    ASSETS LOADING (BACKGROUNDS)                 
+# =================================================================
 second_bg = pygame.image.load("data/SECONDBG.jpg")
 second_bg = pygame.transform.scale(second_bg, (width, height))
 character_bg = pygame.image.load("data/CHARACTERBG.png") 
@@ -154,7 +166,9 @@ game_bg1 = pygame.transform.scale(pygame.image.load("data/BGGAME_LEVEL1.jpg"), (
 game_bg2 = pygame.transform.scale(pygame.image.load("data/BGGAME_LEVEL2.jpg"), (width, height))
 game_bg3 = pygame.transform.scale(pygame.image.load("data/BGGAME_LEVEL3.jpg"), (width, height))
 
-# Character Sprites
+# =================================================================
+#                   ASSETS LOADING (SPRITES)                      
+# =================================================================
 hero_orig = pygame.image.load("data/HERO.png")
 hero_right = pygame.transform.scale(hero_orig, (45, 65)).convert_alpha()
 hero_left = pygame.transform.flip(hero_right, True, False)
@@ -169,7 +183,9 @@ warrior_aiming = pygame.image.load("data/WARRIOR AIMING.png")
 warrior_aiming_right = pygame.transform.scale(warrior_aiming, (75, 80)).convert_alpha()
 warrior_aiming_left = pygame.transform.flip(warrior_aiming_right, True, False)
 
-# Items
+# =================================================================
+#                     ASSETS LOADING (ITEMS)                      
+# =================================================================
 Orbs = pygame.image.load("data/ORBS.png")
 orb_game_img = pygame.transform.scale(Orbs, (25, 25))
 orb_ui_img = pygame.transform.scale(Orbs, (35, 35))
@@ -179,7 +195,9 @@ key_ui_img = pygame.transform.scale(key_orig, (25, 35))
 bullet = pygame.image.load("data/BULLET.png")
 bullet_ui_img = pygame.transform.scale(bullet, (35, 35))
 
-#Enemies
+# =================================================================
+#                    ASSETS LOADING (ENEMIES)                     
+# =================================================================
 enemy1_orig = pygame.image.load("data/ENEMY1.png").convert_alpha()
 enemy1_left_surf = pygame.transform.scale(enemy1_orig, (40, 55))
 enemy1_right_surf = pygame.transform.flip(pygame.transform.scale(enemy1_orig, (40, 55)), True, False)
@@ -202,7 +220,9 @@ defeat = pygame.image.load("data/DEFEAT.png")
 panel_exit = pygame.image.load("data/PANEL_EXIT.png")
 panel_exit = pygame.transform.scale(panel_exit, (450, 270))
 
-# ================= UI RECTANGLES & FONTS =================
+# =================================================================
+#                       UI RECTANGLES & FONTS                     
+# =================================================================
 start_rect = start_img.get_rect(center=(width//2, height - 180))
 exit_rect = exit_img.get_rect(center=(width//2, height - 85))
 panel_rect = panel_exit.get_rect(center=(width//2, height//2))
@@ -228,7 +248,9 @@ next_music_rect = pygame.Rect(width - 55, 100, 30, 30)
 orb_font = pygame.font.SysFont("Arial", 28, bold=True)
 
 
-# ================= GAME STATE VARIABLES =================
+# =================================================================
+#                        GAME STATE VARIABLES                     
+# =================================================================
 
 show_platforms = False
 show_second_menu = False
@@ -301,8 +323,8 @@ warrior_max_ammo = 15
 is_reloading = False
 reload_timer = 0
 
-# Loading & Misc
-# ---------------- LOADING BAR ----------------
+# ---Loading & Misc---
+#loading bar
 loading_progress = 0
 loading_speed = 5
 loading_done = False
@@ -332,7 +354,7 @@ warning_alpha = 0
 warning_timer = 0
 fade_in = True
 
-# ---------------- TEXT FADE ----------------
+#--- TEXT FADE ---
 font_big = pygame.font.SysFont(None, 34)
 text_alpha = 0 
 fade_speed = 2
@@ -340,10 +362,10 @@ story_text = "Are you brave enough to overcome the shadows and find the way out?
 # AUTO-TRANSITION TIMER ---
 story_display_timer = 0
 story_max_duration = 100 
-#=============================================
 
-
-# Lists for entities
+# =================================================================
+#                         LISTS FOR ENTITIES                      
+# =================================================================
 bullets = []
 enemy1_bullets = []
 enemy2_bullets = []
@@ -357,7 +379,9 @@ scarf_particles = []
 spawn_fx_particles = []
 enemies = []
 
-# ================= TUTORIAL SYSTEM VARIABLES =================
+# =================================================================
+#                          TUTORIAL SYSTEM                        
+# =================================================================
 tutorial_active = False
 tutorial_step = 0
 previous_tutorial_step = -1
@@ -373,7 +397,9 @@ tutorial_prompts = [
 ]
 
 
-# ================= PINALAWAK NA PLATFORMS (TRUE=Solid, FALSE=One-way) =================
+# =================================================================
+#                             PLATFORMS                           
+# =================================================================
 platforms = [
 
     [pygame.Rect(0, 580, 2500, 100), True],
@@ -393,12 +419,12 @@ platforms = [
 
     [pygame.Rect(630, 127, 80, 455), True],
 
-    [pygame.Rect(570, 490, 68, 15), False], #ito
-    [pygame.Rect(570, 360, 68, 10), False], #ito
+    [pygame.Rect(570, 490, 68, 15), False],
+    [pygame.Rect(570, 360, 68, 10), False],
     [pygame.Rect(580, 230, 68, 50), True],
 
-    [pygame.Rect(435, 420, 65, 15), False], #ito
-    [pygame.Rect(435, 303, 65, 15), False], #ito
+    [pygame.Rect(435, 420, 65, 15), False],
+    [pygame.Rect(435, 303, 65, 15), False],
 
     [pygame.Rect(709, 128, 60, 15), True],
     [pygame.Rect(779, 215, 60, 15), True],
@@ -418,7 +444,9 @@ platforms = [
 ]
 
 
-# ================= FUNCTIONS & CLASSES =================
+# =================================================================
+#                        FUNCTIONS & CLASSES                      
+# =================================================================
 def get_video_frame():
     success, frame = cap.read()
     if not success:
@@ -752,7 +780,7 @@ def create_particles(x, y, color=CYAN):
     for _ in range(2):
         particles.append([[x + 25, y + 40], [random.randint(-20, 20) / 10, random.randint(-20, 20) / 10], random.randint(4, 8), color])
 
-# ================= MAGIC BALA & EFFECT =================
+
 class Bullet:
     def __init__(self, x, y, target_x, target_y, is_laser=False):
         self.x = x
@@ -805,7 +833,6 @@ class MagicOrb:
 magic_visual = MagicOrb()
 
 
-# =================ENEMY CLASS =================
 class Enemy:
     def __init__(self, x, y, patrol_range):
         self.rect = pygame.Rect(x, y, 50, 75)
@@ -834,7 +861,9 @@ class Enemy:
             pygame.draw.circle(surface, RED, (self.rect.x - cam_x + 35, self.rect.y - cam_y + 20), 4)
 
 
-# ================= MAIN GAME LOOP =================
+# =================================================================
+#                          MAIN GAME LOOP                          
+# =================================================================
 
 running = True
 while running:
@@ -864,9 +893,21 @@ while running:
                         shockwaves.append([hero_x + 22, hero_y + 60, 5, 200])
 
             if event.key == pygame.K_ESCAPE: 
-                cap.release()
-                pygame.quit()
-                sys.exit()
+                # I-reset lahat ng game states para bumalik sa Main Menu
+                show_actual_game = False
+                show_second_menu = False
+                show_character_screen = False
+                show_story_screen = False
+                show_exit_popup = False
+                show_exit_confirm = False
+                tutorial_active = False
+                
+                # I-reset ang music para sa Main Menu
+                pygame.mixer.music.stop()
+                pygame.mixer.music.load("data/BGMUSIC.mp3")
+                if not is_muted: 
+                    pygame.mixer.music.play(-1)
+
             if show_info_panel and event.key == pygame.K_SPACE: 
                 show_info_panel = False
                 show_exit_popup = False
