@@ -868,6 +868,9 @@ class Enemy:
 running = True
 while running:
 
+    # =================================================================
+    #                        MOUSE & EVENT TRACKING                    
+    # =================================================================
     mouse_pos = pygame.mouse.get_pos() 
 
     for event in pygame.event.get():
@@ -876,6 +879,10 @@ while running:
             pygame.quit()
             sys.exit()
 
+        # =================================================================
+        #                        KEYBOARD PRESS EVENTS (KEYDOWN)           
+        # =================================================================
+        #KEY DOWN RELOAD
         if event.type == pygame.KEYDOWN:
             if show_actual_game and selected_char_index == 0:
                 if event.key == pygame.K_r and warrior_ammo < warrior_max_ammo and not is_reloading:
@@ -892,6 +899,7 @@ while running:
                         jumphero_sfx.play()
                         shockwaves.append([hero_x + 22, hero_y + 60, 5, 200])
 
+            #KEY DOWN ESC
             if event.key == pygame.K_ESCAPE: 
                 # I-reset lahat ng game states para bumalik sa Main Menu
                 show_actual_game = False
@@ -908,26 +916,11 @@ while running:
                 if not is_muted: 
                     pygame.mixer.music.play(-1)
 
+            #KEY DOWN SPACE
             if show_info_panel and event.key == pygame.K_SPACE: 
                 show_info_panel = False
                 show_exit_popup = False
 
-            if show_actual_game and not is_victory and not is_dead:
-                if event.key == pygame.K_e:
-                    dist_to_door = math.hypot(hero_x - door_rect.centerx, hero_y - door_rect.centery)
-                    if selected_level == 3:
-                        required_keys = 4
-                    elif selected_level == 2:
-                        required_keys = 3
-                    else:
-                        required_keys = 2
-
-                    if dist_to_door < 80 and collected_keys >= required_keys:
-                        is_victory = True
-                        victory_anim_timer = 120 
-                        pygame.mixer.music.stop()
-                        exit_sound_sfx.play()
-            
             if is_dead:
                 if event.key == pygame.K_SPACE:
                     defeat_sound_sfx.stop()
@@ -994,6 +987,26 @@ while running:
                     pygame.mixer.music.load("data/BGMUSIC.mp3")
                     if not is_muted: pygame.mixer.music.play(-1)
 
+            #KEYDOWN E interact
+            if show_actual_game and not is_victory and not is_dead:
+                if event.key == pygame.K_e:
+                    dist_to_door = math.hypot(hero_x - door_rect.centerx, hero_y - door_rect.centery)
+                    if selected_level == 3:
+                        required_keys = 4
+                    elif selected_level == 2:
+                        required_keys = 3
+                    else:
+                        required_keys = 2
+
+                    if dist_to_door < 80 and collected_keys >= required_keys:
+                        is_victory = True
+                        victory_anim_timer = 120 
+                        pygame.mixer.music.stop()
+                        exit_sound_sfx.play()
+
+        # =================================================================
+        #                        MOUSE CLICK EVENTS (MOUSEDOWN)            
+        # =================================================================
         if event.type == pygame.MOUSEBUTTONDOWN:
             if loading_done and not is_dead and not show_victory_screen: 
                 if loading_done:
@@ -1023,6 +1036,9 @@ while running:
                     is_charging = False
                     charge_value = 0
 
+                # =================================================================
+                #                        IN-GAME UI CLICKS                         
+                # =================================================================
                 if show_actual_game and not show_exit_popup:
                     if prev_music_rect.collidepoint(event.pos):
                         click_sfx.play()
@@ -1056,6 +1072,9 @@ while running:
 
                 if show_info_panel: continue 
 
+                # =================================================================
+                #                        STORY & TUTORIAL CLICKS                   
+                # =================================================================
                 if show_story_screen:
                     if skip_rect.collidepoint(event.pos):
                         click_sfx.play() 
@@ -1090,7 +1109,7 @@ while running:
                             pygame.mixer.music.load("data/MAIN_MUSICGAME.mp3")
                             pygame.mixer.music.play(-1)
                     continue
-
+                
                 if show_actual_game:
                     if tutorial_active and skip_rect.collidepoint(event.pos):
                         click_sfx.play()
@@ -1119,7 +1138,10 @@ while running:
                         pygame.mixer.music.load("data/BGMUSIC.mp3")
                         if not is_muted: pygame.mixer.music.play(-1)
                     continue
-
+                
+                # =================================================================
+                #                        MENU SELECTION CLICKS                     
+                # =================================================================
                 if show_second_menu:
                     if not is_dead: 
                         if back_rect.collidepoint(event.pos): 
@@ -1150,7 +1172,10 @@ while running:
                                 warning_timer = 60
                                 fade_in = True
                         continue
-
+                
+                # =================================================================
+                #                        CHARACTER SELECTION CLICKS                
+                # =================================================================
                 if show_character_screen:
                     if back_rect.collidepoint(event.pos): 
                         click_sfx.play() 
@@ -1224,6 +1249,9 @@ while running:
                     show_exit_popup = True
                     show_exit_confirm = True
 
+        # =================================================================
+        #                        MOUSE RELEASE EVENTS (MOUSEUP)            
+        # =================================================================
         if event.type == pygame.MOUSEBUTTONUP:
             if show_actual_game:
                 if event.button == 1:
@@ -1241,6 +1269,9 @@ while running:
 
     screen.fill(BLACK) 
 
+    # =================================================================
+    #                        LOADING SCREEN LOGIC                      
+    # =================================================================
     if not loading_done:
         pygame.draw.rect(screen, WHITE, (0, height - 10, loading_progress, 5))
         loading_progress += loading_speed
@@ -1250,8 +1281,12 @@ while running:
                 pygame.mixer.music.play(-1)
                 music_started = True
 
+    #MAIN IN-GAME LOGIC
     elif show_actual_game:
 
+        # =================================================================
+        #                        TUTORIAL SYSTEM UPDATES                   
+        # =================================================================
         if tutorial_active:
             if tutorial_step != previous_tutorial_step:
                 tutorial_next_sfx.play()  
@@ -1299,6 +1334,9 @@ while running:
                     pygame.mixer.music.stop()
                     exit_sound_sfx.play()
 
+        # =================================================================
+        #                        CAMERA TRACKING                           
+        # =================================================================
         if camera_follow_enabled:
             target_cam_x = hero_x - (internal_res[0] // 2)
             target_cam_y = hero_y - (internal_res[1] // 2)
@@ -1318,6 +1356,9 @@ while running:
             camera_x = 0
             camera_y = 0
 
+        # =================================================================
+        #                        PLAYER SPAWN & VICTORY ANIMATIONS         
+        # =================================================================
         if is_spawning:
             spawn_timer -= 1
             if hero_spawn_alpha < 255: hero_spawn_alpha += 5
@@ -1343,6 +1384,9 @@ while running:
                 show_victory_screen = True 
                 victory_sound_sfx.play()
 
+        # =================================================================
+        #                        PLAYER HEALTH & DEATH LOGIC               
+        # =================================================================
         if hero_health <= 0:
             hero_health = 0
             if tutorial_active:
@@ -1358,7 +1402,10 @@ while running:
                 pygame.mixer.music.stop()
                 player_hurt_sfx.play()
                 hero_death_blink_sfx.play()
-            
+
+        # =================================================================
+        #                        PLAYER MOVEMENT & PHYSICS                 
+        # =================================================================   
         if not is_dead and not is_victory and not show_victory_screen: 
             current_speed = hero_speed * 2 if power_active else hero_speed
             keys = pygame.key.get_pressed()
@@ -1380,6 +1427,9 @@ while running:
                     hero_x += current_speed
                     facing_right = True
 
+            # =================================================================
+            #                        DASH MECHANICS                            
+            # =================================================================
             if is_dashing:
                 dash_speed = 15
                 hero_x += dash_speed * dash_direction
@@ -1409,6 +1459,9 @@ while running:
             if hero_x < 0: hero_x = 0
             if hero_x > width - 45: hero_x = width - 45
             
+            # =================================================================
+            #                        PLATFORM COLLISION (HORIZONTAL)           
+            # =================================================================
             hero_rect_active = pygame.Rect(hero_x, hero_y, 45, 65)
             for plat_data in platforms:
                 plat_rect = plat_data[0]
@@ -1420,6 +1473,9 @@ while running:
                         hero_x = plat_rect.right
                     hero_rect_active.x = hero_x
 
+            # =================================================================
+            #                        GRAVITY & PLATFORM COLLISION (VERTICAL)   
+            # =================================================================
             if not is_victory:
                 hero_vel_y += gravity
                 hero_y += hero_vel_y
@@ -1457,6 +1513,9 @@ while running:
             if invincibility_timer > 0:
                 invincibility_timer -= 1
 
+            # =================================================================
+            #                        PARTICLES & VISUAL EFFECTS                
+            # =================================================================
             if selected_char_index == 0:
                 hover_offset = 0
 
@@ -1495,8 +1554,10 @@ while running:
                                 random.randint(2, 4),
                                 spark_color
                             ])
-            # ======================================================
 
+            # =================================================================
+            #                        PLAYER COMBAT & SHOOTING                  
+            # =================================================================
             if not is_dead and not is_victory:
                 if selected_char_index != 0:
                     if is_charging and charge_value < 100:
@@ -1566,6 +1627,9 @@ while running:
                 is_reloading = False
                 reload_sfx.stop()
 
+        # =================================================================
+        #                        RENDERING BACKGROUND & PLATFORMS          
+        # =================================================================
         display_surface.fill(BLACK)
         if selected_level == 1: display_surface.blit(game_bg1, (0 - camera_x, 0 - camera_y))
         elif selected_level == 2: display_surface.blit(game_bg2, (0 - camera_x, 0 - camera_y))
@@ -1577,6 +1641,9 @@ while running:
                 pygame.draw.rect(display_surface, MOSSY_BRICK, (plat.x - camera_x, plat.y - camera_y, plat.width, plat.height))
                 pygame.draw.rect(display_surface, MOSSY_GLOW, (plat.x - camera_x, plat.y - camera_y, plat.width, plat.height), 2)
 
+        # =================================================================
+        #                        EXIT DOOR LOGIC                           
+        # =================================================================
         if is_victory:
             victory_door = door_img.copy()
             alpha_glow = min(255, (120 - victory_anim_timer) * 4.0) 
@@ -1604,6 +1671,9 @@ while running:
             txt = msg_font.render(msg, True, WHITE)
             display_surface.blit(txt, txt.get_rect(center=(door_rect.centerx - camera_x, door_rect.top - 30 - camera_y)))
 
+        # =================================================================
+        #                        ENEMY UPDATES & DRAWING                   
+        # =================================================================
         for se in stationary_enemies:
             if isinstance(se, Enemy2Stationary):
                 se.update()
@@ -1620,6 +1690,9 @@ while running:
                 se.update(hero_x)
             se.draw(display_surface, camera_x, camera_y)
 
+        # =================================================================
+        #                        COLLECTIBLES (ORBS & KEYS)                
+        # =================================================================
         for orb in dropped_orbs[:]:
             orb.update()
             orb.draw(display_surface, camera_x, camera_y)
@@ -1629,6 +1702,9 @@ while running:
                 dropped_orbs.remove(orb)
                 particles.append([[orb.rect.centerx, orb.rect.centery], [0, -2], 10, WHITE])
         
+        # =================================================================
+        #                        ENEMY 1 BULLETS                           
+        # =================================================================
         for k in dropped_keys[:]:
             k.update()
             k.draw(display_surface, camera_x, camera_y)
@@ -1669,7 +1745,9 @@ while running:
             elif eb.x < 0 or eb.x > game_world_size[0]:
                 if eb in enemy1_bullets: enemy1_bullets.remove(eb)
 
-
+        # =================================================================
+        #                        ENEMY 2 BULLETS                           
+        # =================================================================
         for e2b in enemy2_bullets[:]:
             e2b.update()
             e2b.draw(display_surface, camera_x, camera_y)
@@ -1688,6 +1766,9 @@ while running:
             elif e2b.x < -100 or e2b.x > game_world_size[0] + 100 or e2b.y < -100 or e2b.y > game_world_size[1] + 100:
                 if e2b in enemy2_bullets: enemy2_bullets.remove(e2b)
 
+        # =================================================================
+        #                        VFX (TRAILS, SCARFS, PARTICLES)           
+        # =================================================================
         for trail in ghost_trails[:]:
             img, pos, alpha = trail
             img.set_alpha(alpha)
@@ -1701,6 +1782,9 @@ while running:
             pygame.draw.rect(display_surface, sp[3], (int(sp[0][0] - camera_x), int(sp[0][1] - camera_y), int(sp[2]), int(sp[2])))
             if sp[2] <= 0: scarf_particles.remove(sp)
 
+        # =================================================================
+        #                        PLAYER BULLET LOGIC                       
+        # =================================================================
         for b in bullets[:]:
             is_alive = b.update()
             if not is_alive:
@@ -1729,7 +1813,10 @@ while running:
                     break
             if b.x < 0 or b.x > game_world_size[0] or b.y < 0 or b.y > game_world_size[1]:
                 if b in bullets: bullets.remove(b)
-
+        
+        # =================================================================
+        #                        PATROLLING ENEMIES (if any)               
+        # =================================================================
         for ene in enemies:
             if ene.alive:
                 ene.update(hero_x, hero_y)
@@ -1742,6 +1829,9 @@ while running:
                         if hero_x < ene.rect.x: hero_x -= 20
                         else: hero_x += 20
 
+        # =================================================================
+        #                        GENERAL PARTICLES & SHOCKWAVES            
+        # =================================================================
         for p in particles[:]:
             p[0][0] += p[1][0]; p[0][1] += p[1][1]; p[2] -= 0.2
             pygame.draw.circle(display_surface, p[3], (int(p[0][0] - camera_x), int(p[0][1] - camera_y)), int(p[2]))
@@ -1769,6 +1859,9 @@ while running:
             temp_surf.set_alpha(s[3])
             display_surface.blit(temp_surf, (s[0] - s[2] - camera_x, s[1] - s[2] - camera_y))
 
+        # =================================================================
+        #                        PLAYER RENDERING (SPRITES)                
+        # =================================================================
         if is_hit_aiming:
             char_disp = active_aiming_right.copy() if facing_right else active_aiming_left.copy()
             # Visual effects based on class
@@ -1836,6 +1929,9 @@ while running:
                     vy = (door_rect.centery - p_y) * 0.12
                     particles.append([[p_x, p_y], [vx, vy], random.randint(2, 5), WHITE])
 
+        # =================================================================
+        #                        MAIN SCREEN DISPLAY (HUD & UI)            
+        # =================================================================
         screen.blit(pygame.transform.scale(display_surface, (width, height)), (0, 0))
         
         
@@ -1912,7 +2008,9 @@ while running:
         key_count_txt = orb_font.render(f"{collected_keys}/{required_keys}", True, key_color)
         screen.blit(key_count_txt, (key_ui_rect.right + 10, key_ui_rect.top + 5))
 
-        # =================TUTORIAL OVERLAY UI =================
+        # =================================================================
+        #                        TUTORIAL OVERLAY UI                       
+        # =================================================================
         if tutorial_active:
             tut_box_surf = pygame.Surface((550, 65), pygame.SRCALPHA)
             tut_box_surf.fill((0, 0, 0, 200))
@@ -1941,7 +2039,9 @@ while running:
         else:
             screen.blit(current_music_img, music_btn_rect)
         
-        # ================= MUSIC PLAYER UI RENDERING =================
+        # =================================================================
+        #                        MUSIC PLAYER UI RENDERING                 
+        # =================================================================
         if not show_story_screen and not show_exit_popup and not is_dead and not show_victory_screen:
             # Transparent Background Box (Longer Square style)
             s = pygame.Surface((220, 55), pygame.SRCALPHA)
@@ -1965,6 +2065,9 @@ while running:
             now_playing = pygame.font.SysFont("Arial", 11).render("NOW PLAYING:", True, WHITE)
             screen.blit(now_playing, (width - 230, 90))
         
+        # =================================================================
+        #                        DEATH & DEFEAT SCREEN                     
+        # =================================================================
         if is_dead:
             overlay = pygame.Surface((width, height), pygame.SRCALPHA)
             overlay.fill((0, 0, 0, 180)) 
@@ -1980,7 +2083,10 @@ while running:
                 any_key_txt = any_key_font.render("PRESS SPACEBAR TO EXIT", True, WHITE)
                 any_key_rect = any_key_txt.get_rect(center=(width//2, height//2 + 200))
                 screen.blit(any_key_txt, any_key_rect)
-    
+
+        # =================================================================
+        #                        VICTORY SCREEN                            
+        # =================================================================
         if show_victory_screen:
             overlay = pygame.Surface((width, height), pygame.SRCALPHA)
             overlay.fill((0, 0, 0, 160)) 
@@ -2003,6 +2109,9 @@ while running:
                 v_txt_rect = v_txt.get_rect(center=(width//2, height//2 + 200))
                 screen.blit(v_txt, v_txt_rect)
 
+        # =================================================================
+        #                        INFO PANEL / POPUP (IN-GAME)              
+        # =================================================================
         if show_exit_popup:
             screen.blit(second_blur, (0, 0))
             if show_info_panel:
@@ -2022,6 +2131,9 @@ while running:
                     txt = font.render("Press Spacebar To Back", True, WHITE)
                     screen.blit(txt, txt.get_rect(center=(width//2, height - 70)))
 
+    # =================================================================
+    #                        CHARACTER SELECTION SCREEN                
+    # =================================================================
     elif show_character_screen:
         screen.blit(character_bg, (0, 0))
         if selected_char_index == 0:
@@ -2086,6 +2198,9 @@ while running:
                     txt = font.render("Press Spacebar To Back", True, WHITE)
                     screen.blit(txt, txt.get_rect(center=(width//2, height - 70)))
 
+    # =================================================================
+    #                        MAIN MENU / SECOND MENU                   
+    # =================================================================
     else:
         frame_surf = get_video_frame()
         if frame_surf:
@@ -2118,6 +2233,9 @@ while running:
         else:
             screen.blit(info_img, info_rect)
 
+        # =================================================================
+        #                        LEVEL SELECTION MENU                      
+        # =================================================================
         if show_second_menu:
             screen.blit(second_bg, (0, 0))
             if selected_level == 1:
@@ -2187,6 +2305,9 @@ while running:
                 warning_rect = select_level_img.get_rect(center=(width//2, height//2))
                 screen.blit(select_level_img, warning_rect)
 
+        # =================================================================
+        #                        STORY SCREEN DISPLAY                      
+        # =================================================================
         if show_story_screen:
             screen.fill(BLACK)
             
@@ -2222,6 +2343,9 @@ while running:
             else:
                 screen.blit(skip_img, skip_rect)
 
+        # =================================================================
+        #                        EXIT CONFIRMATION & INFO POPUP            
+        # =================================================================
         if show_exit_popup:
             screen.blit(second_blur if (show_second_menu or show_character_screen or show_actual_game) else exit_popup, (0, 0))
             
