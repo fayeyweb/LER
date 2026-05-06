@@ -580,7 +580,7 @@ class Enemy1Stationary: #stationary means di nagalaw
             self.slant_angle = 15 if p_x < self.rect.x else -15
         else:
             self.slant_angle = 0
-        if self.shoot_timer >= 120:
+        if self.shoot_timer >= 120: #BULLETS ENEMY APPEND
             direction = -1 if p_x < self.rect.centerx else 1
             enemy1_bullets.append(Enemy1Bullet(self.rect.centerx, self.rect.centery, direction)) #dito na lalabas ung bala sa gitna ng enemy
             self.shoot_timer = 0 #para paulit ulit ung pag bato
@@ -665,7 +665,7 @@ class Enemy2Stationary:
             self.image = self.image_shh if self.is_shh else self.image_normal
             self.anim_timer = 0
 
-        if self.shoot_timer >= 200:
+        if self.shoot_timer >= 200: #BULLETS ENEMY 2 APPEND
             enemy2_hit_sfx.play() 
             angles = [0, math.pi/2, math.pi, 3*math.pi/2] 
             wand_x = self.rect.x + 20 
@@ -898,7 +898,7 @@ while running:
                         is_jumping = True
                         jump_count += 1
                         jumphero_sfx.play()
-                        shockwaves.append([hero_x + 22, hero_y + 60, 5, 200])
+                        shockwaves.append([hero_x + 22, hero_y + 60, 5, 200]) #JUMP PARTICLES APPEND
 
             #KEY DOWN ESC
             if event.key == pygame.K_ESCAPE: 
@@ -991,7 +991,7 @@ while running:
             #KEYDOWN E interact
             if show_actual_game and not is_victory and not is_dead:
                 if event.key == pygame.K_e:
-                    dist_to_door = math.hypot(hero_x - door_rect.centerx, hero_y - door_rect.centery)
+                    dist_to_door = math.hypot(hero_x - door_rect.centerx, hero_y - door_rect.centery) #HYPOT DETECTION RANGE
                     #REQUIRED KEYS
                     if selected_level == 3:
                         required_keys = 4
@@ -1597,6 +1597,7 @@ while running:
                     if not is_moving and not is_jumping:
                         if random.random() < 0.1: 
                             spark_color = MOSSY_GLOW if not power_active else WHITE
+                            #ITO UNG PARTICLES NA NASA ULO NI WARRIOR (APPEND)
                             particles.append([
                                 [hero_x + random.randint(0, 45), hero_y + 65 + hover_offset],
                                 [random.uniform(-0.5, 0.5), random.uniform(-1.5, -0.5)], 
@@ -1625,7 +1626,7 @@ while running:
                         hand_x = hero_x + 50 if facing_right else hero_x + 5
                         hand_y = hero_y + 35 + hover_offset
                         
-                        #WARRIOR AMMO
+                        #WARRIOR AMMO  BULLETS APPEND
                         if selected_char_index == 0:
                             if warrior_ammo > 0 and not is_reloading:
                                 bullets.append(Bullet(hand_x, hand_y, mouse_world_x, mouse_world_y, True))
@@ -1778,7 +1779,7 @@ while running:
         #                        ENEMY 1 BULLETS                           
         # =================================================================
         
-        #MAKE SURE NA DI TUMATAGOS UNG BALA NIYA SA MGA PADER
+        #MAKE SURE NA DI TUMATAGOS UNG BALA NIYA SA MGA PADER BULLETS ENEMY RENDERING
         for eb in enemy1_bullets[:]:
             eb.update()
             eb.draw(display_surface, camera_x, camera_y)
@@ -1853,7 +1854,7 @@ while running:
         #                        PLAYER BULLET LOGIC                       
         # =================================================================
         
-        #PLAYER ATTACK LOGIC
+        #PLAYER ATTACK LOGIC BULLET RENDERING
         for b in bullets[:]:
             is_alive = b.update()
             if not is_alive:
