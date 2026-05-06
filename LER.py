@@ -1923,8 +1923,6 @@ while running:
             s[2] += 12; s[3] -= 10
             if s[3] <= 0: shockwaves.remove(s); continue
             shock_rect = pygame.Rect(s[0] - s[2], s[1] - s[2], s[2]*2, s[2]*2)
-            for ene in enemies:
-                if ene.alive and shock_rect.colliderect(ene.rect): ene.alive = False 
             temp_surf = pygame.Surface((s[2]*2, s[2]*2), pygame.SRCALPHA)
             pygame.draw.circle(temp_surf, (0, 255, 255), (s[2], s[2]), s[2], 8)
             temp_surf.set_alpha(s[3])
