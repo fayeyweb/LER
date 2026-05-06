@@ -19,7 +19,7 @@ height = 648
 screen = pygame.display.set_mode((width, height)) 
 pygame.display.set_caption("LOST EXIT REALM") 
 
-clock = pygame.time.Clock()
+clock = pygame.time.Clock() #para matrack ung oras ng game
 
 # =================================================================
 #                        COLORS & ASSETS                          
@@ -82,15 +82,15 @@ pygame.mixer.music.set_volume(0.5) #music
 #                      ZOOM & CAMERA SETTINGS                     
 # =================================================================
 video_path = "data/moving bg.mp4"
-cap = cv2.VideoCapture(video_path)
+cap = cv2.VideoCapture(video_path) #para mabasa niya yung naload mong video
 zoom_level = 1.5
-camera_follow_enabled = True
-internal_res = (int(width / zoom_level), int(height / zoom_level))
-display_surface = pygame.Surface(internal_res) 
+camera_follow_enabled = True #may block of code dun na kapag naka true ito susundan niya ung player
+internal_res = (int(width / zoom_level), int(height / zoom_level)) #so magiging 768 x 432 ung screen
+display_surface = pygame.Surface(internal_res) #kino convert ung computation sa taas para mag zoom 
 
-camera_x = 0
+camera_x = 0 #adjust position ng screen
 camera_y = 0
-camera_smoothing = 0.1
+camera_smoothing = 0.1 #gaano ka smooth ung habol sa player
 
 # =================================================================
 #                      ASSETS LOADING (UI)                        
@@ -189,7 +189,7 @@ warrior_aiming_left = pygame.transform.flip(warrior_aiming_right, True, False)
 Orbs = pygame.image.load("data/ORBS.png")
 orb_game_img = pygame.transform.scale(Orbs, (25, 25))
 orb_ui_img = pygame.transform.scale(Orbs, (35, 35))
-key_orig = pygame.image.load("data/KEYS.png").convert_alpha()
+key_orig = pygame.image.load("data/KEYS.png")
 key_game_img = pygame.transform.scale(key_orig, (25, 35)) 
 key_ui_img = pygame.transform.scale(key_orig, (25, 35))
 bullet = pygame.image.load("data/BULLET.png")
@@ -270,7 +270,7 @@ collected_keys = 0
 is_coming_from_tutorial = False
 
 # Player Stats & Physics
-hero_x, hero_y = 100, 500
+hero_x, hero_y = 100, 500 #spawn point
 hero_vel_y = 0
 hero_speed = 4
 gravity = 0.5
@@ -384,7 +384,7 @@ enemies = []
 # =================================================================
 tutorial_active = False
 tutorial_step = 0
-previous_tutorial_step = -1
+previous_tutorial_step = -1 # para alam natin na natapos na ung isang steps
 tutorial_prompts = [
     "Press A and D to Move",            # Step 0
     "Press W or SPACE to Jump",         # Step 1
@@ -450,7 +450,7 @@ platforms = [
 def get_video_frame():
     success, frame = cap.read()
     if not success:
-        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+        cap.set(cv2.CAP_PROP_POS_FRAMES, 0) #babalik ulit ung video sa umpisa
         success, frame = cap.read()
     
     if success:
@@ -462,8 +462,8 @@ def get_video_frame():
     return None
 
 class CollectibleOrb:
-    def __init__(self, x, y):
-        self.x = x
+    def __init__(self, x, y): #Set up ng bagong orb
+        self.x = x #memory ng position
         self.y = y
         self.rect = orb_game_img.get_rect(center=(x, y))
         self.hover_timer = random.random() * 10
@@ -471,11 +471,11 @@ class CollectibleOrb:
 
     def update(self):
         self.hover_timer += 0.1
-        self.offset = math.sin(self.hover_timer) * 5
+        self.offset = math.sin(self.hover_timer) * 5 # computation ng ano toh hover ng orbs
 
     def draw(self, surface, cam_x, cam_y):
         if self.alive:
-            surface.blit(orb_game_img, (self.rect.x - cam_x, self.rect.y + self.offset - cam_y))
+            surface.blit(orb_game_img, (self.rect.x - cam_x, self.rect.y + self.offset - cam_y)) #binabawasan ung position ng camera
             glow = pygame.Surface((30, 30), pygame.SRCALPHA)
             pygame.draw.circle(glow, (200, 100, 255, 100), (15, 15), 12)
             surface.blit(glow, (self.rect.x - 3 - cam_x, self.rect.y + self.offset - 3 - cam_y), special_flags=pygame.BLEND_RGB_ADD)
@@ -503,22 +503,22 @@ class ExplosionParticle:
     def __init__(self, x, y, color):
         self.x, self.y = x, y
         self.color = color
-        self.vx, self.vy = random.uniform(-6, 6), random.uniform(-6, 6)
-        self.lifetime = 45
+        self.vx, self.vy = random.uniform(-6, 6), random.uniform(-6, 6) #velocity
+        self.lifetime = 45 #buhay ng particles like cooldown
     def update(self):
-        self.x += self.vx
+        self.x += self.vx #position base sa bilis
         self.y += self.vy
-        self.lifetime -= 1
+        self.lifetime -= 1 #binabawas ung lifetime habang tumatagal
     def draw(self, surface, cam_x, cam_y):
         if self.lifetime > 0:
-            alpha = min(255, self.lifetime * 6)
-            p_surf = pygame.Surface((6, 6), pygame.SRCALPHA)
+            alpha = min(255, self.lifetime * 6) #dahan dahan mag fafade out
+            p_surf = pygame.Surface((6, 6), pygame.SRCALPHA) #inaalis ung bg
             pygame.draw.circle(p_surf, (*self.color, alpha), (3, 3), 3)
             surface.blit(p_surf, (self.x - cam_x, self.y - cam_y))
 
 
 
-def trigger_explosion(x, y):
+def trigger_explosion(x, y): #kung saan mamatay ung enemy diyan mag uumpisa ung exploasion
     for _ in range(30):
         explosion_particles.append(ExplosionParticle(x, y, (255, 100, 0)))
         explosion_particles.append(ExplosionParticle(x, y, (255, 255, 255)))
@@ -539,7 +539,7 @@ class Enemy1Bullet:
         pygame.draw.circle(glow, (255, 0, 0, 80), (self.radius*2, self.radius*2), self.radius*2)
         surface.blit(glow, (self.x - self.radius*2 - cam_x, self.y - self.radius*2 - cam_y))
 
-class Enemy1Stationary:
+class Enemy1Stationary: #stationary means di nagalaw
     def __init__(self, x, y, image_surf, is_right_side=False):
         self.image = image_surf
         self.rect = self.image.get_rect(topleft=(x, y))
@@ -548,9 +548,9 @@ class Enemy1Stationary:
         self.is_right_side = is_right_side 
 
         if selected_level == 3:
-            self.health = 300
-        elif selected_level == 2:
             self.health = 400
+        elif selected_level == 2:
+            self.health = 300
         else:
             self.health = 100
             
@@ -559,7 +559,7 @@ class Enemy1Stationary:
         self.alive = True
 
     def take_damage(self, amount):
-        self.health -= amount
+        self.health -= amount #binabawasan ung health base sa amount(bala)
         self.flash_timer = 5
         if self.health <= 0:
             self.health = 0
@@ -573,8 +573,8 @@ class Enemy1Stationary:
             else:
                 dropped_orbs.append(CollectibleOrb(self.rect.centerx, self.rect.centery))
 
-    def update(self, p_x):
-        if not self.alive: return
+    def update(self, p_x): #dito kung kailan lilingon or puputok
+        if not self.alive: return #kung patay na siya wag na ito basahin
         self.shoot_timer += 1
         if self.shoot_timer > 90:
             self.slant_angle = 15 if p_x < self.rect.x else -15
@@ -582,8 +582,8 @@ class Enemy1Stationary:
             self.slant_angle = 0
         if self.shoot_timer >= 120:
             direction = -1 if p_x < self.rect.centerx else 1
-            enemy1_bullets.append(Enemy1Bullet(self.rect.centerx, self.rect.centery, direction))
-            self.shoot_timer = 0
+            enemy1_bullets.append(Enemy1Bullet(self.rect.centerx, self.rect.centery, direction)) #dito na lalabas ung bala sa gitna ng enemy
+            self.shoot_timer = 0 #para paulit ulit ung pag bato
         
         if self.flash_timer > 0: self.flash_timer -= 1
 
@@ -591,7 +591,7 @@ class Enemy1Stationary:
         if not self.alive: return
         
         draw_img = self.image
-        if self.flash_timer > 0:
+        if self.flash_timer > 0: #kapag natamaan si enemy
             draw_img = self.image.copy()
             draw_img.fill((255, 255, 255), special_flags=pygame.BLEND_RGB_ADD)
 
@@ -614,7 +614,7 @@ class Enemy2Bullet:
         self.angle = angle 
         self.size = 12
     def update(self):
-        self.x += math.cos(self.angle) * self.speed
+        self.x += math.cos(self.angle) * self.speed #Math (Cos/Sin): Para kahit saang angle pwedeng tumira.
         self.y += math.sin(self.angle) * self.speed
     def draw(self, surface, cam_x, cam_y):
         points = [
@@ -635,9 +635,9 @@ class Enemy2Stationary:
         self.shoot_timer = 0
 
         if selected_level == 3:
-            self.health = 350
-        elif selected_level == 2:
             self.health = 450
+        elif selected_level == 2:
+            self.health = 350
         else:
             self.health = 150
             
@@ -675,7 +675,7 @@ class Enemy2Stationary:
             self.shoot_timer = 0
         if self.flash_timer > 0: self.flash_timer -= 1
 
-    def draw(self, surface, cam_x, cam_y):
+    def draw(self, surface, cam_x, cam_y): #dito dinadraw ung img ng enemy pag nahuhurt siya
         if not self.alive: return
         draw_img = self.image
         if self.flash_timer > 0:
@@ -728,11 +728,11 @@ class Enemy3Jumping:
         self.vel_y += self.gravity
         self.rect.y += self.vel_y
         
-        if self.rect.y >= self.ground_y:
+        if self.rect.y >= self.ground_y: #ito ung kapag nasa ground si enemy mag jump ulit
             self.rect.y = self.ground_y
             self.vel_y = -6 
     
-        if abs(p_y - self.rect.y) < 50:
+        if abs(p_y - self.rect.y) < 50: #dito kapag nakita player na umapak sa ground dun siya mag aattack
             self.is_rolling = True
             if p_x < self.rect.x:
                 self.vel_x = -4
@@ -776,25 +776,26 @@ dropped_keys.append(CollectibleKey(220, 140))
 
 # ======================================================================
 
+#ito ung charge ng mage
 def create_particles(x, y, color=CYAN):
     for _ in range(2):
         particles.append([[x + 25, y + 40], [random.randint(-20, 20) / 10, random.randint(-20, 20) / 10], random.randint(4, 8), color])
 
-
+#bullet ni warrior
 class Bullet:
     def __init__(self, x, y, target_x, target_y, is_laser=False):
         self.x = x
         self.y = y
         self.is_laser = is_laser
-        self.speed = 15 if is_laser else 8 
-        self.angle = math.atan2(target_y - y, target_x - x) 
+        self.speed = 15 if is_laser else 8 #SPEED BULLET
+        self.angle = math.atan2(target_y - y, target_x - x)  #kahit saan itututok si mouse dun siya tatama
         self.dx = math.cos(self.angle) * self.speed
         self.dy = math.sin(self.angle) * self.speed
         self.radius = 4 if is_laser else 7 
         self.distance_traveled = 0
-        self.max_range = 150 if is_laser else 180 
+        self.max_range = 150 if is_laser else 180 #RANGE BULLET WARRIOR 150 #RANGE BULLET ELSE MAGE
 
-    def update(self):
+    def update(self): #distance ng bala
         self.x += self.dx
         self.y += self.dy
         self.distance_traveled += self.speed
@@ -811,7 +812,7 @@ class Bullet:
             glow_surf = pygame.Surface((width, height), pygame.SRCALPHA)
             pygame.draw.line(glow_surf, (255, 255, 255, 100), (self.x - cam_x, self.y - cam_y), (end_x - cam_x, end_y - cam_y), 6)
             surface.blit(glow_surf, (0, 0))
-        else:
+        else:  #ito ung bullet ni mage kapag false ung warrior
             for i in range(2):
                 r = self.radius + (i * 4)
                 s = pygame.Surface((r*2, r*2), pygame.SRCALPHA)
@@ -819,8 +820,8 @@ class Bullet:
                 surface.blit(s, (self.x - r - cam_x, self.y - r - cam_y))
             pygame.draw.circle(surface, WHITE, (int(self.x - cam_x), int(self.y - cam_y)), self.radius)
 
-
-class MagicOrb:
+#kay mage ito pang attack
+class MagicOrb: #ito naman ung nag vivibrate na purple sa kamay ng mage
     def draw(self, surface, x, y):
         for i in range(3):
             r = 18 + random.randint(0, 10)
@@ -833,8 +834,8 @@ class MagicOrb:
 magic_visual = MagicOrb()
 
 
-class Enemy:
-    def __init__(self, x, y, patrol_range):
+class Enemy: #function ito ng enemy na gumagalaw
+    def __init__(self, x, y, patrol_range): #mga katangian or properties
         self.rect = pygame.Rect(x, y, 50, 75)
         self.start_x = x
         self.patrol_range = patrol_range
@@ -842,9 +843,9 @@ class Enemy:
         self.direction = 1
         self.alive = True
 
-    def update(self, player_x, player_y):
+    def update(self, player_x, player_y): #kung ano gagawin niya
         if not self.alive: return
-        dist = math.hypot(player_x - self.rect.x, player_y - self.rect.y)
+        dist = math.hypot(player_x - self.rect.x, player_y - self.rect.y) #ito ung para madetect si player
         if dist < 250:
             if player_x < self.rect.x: self.rect.x -= self.speed + 1
             else: self.rect.x += self.speed + 1
@@ -854,7 +855,7 @@ class Enemy:
                 self.direction *= -1
 
     def draw(self, surface, cam_x, cam_y):
-        if self.alive:
+        if self.alive: #ito mata ni player para maging visble ung enemy sakanya
             pygame.draw.rect(surface, (30, 0, 0), (self.rect.x - cam_x, self.rect.y - cam_y, self.rect.width, self.rect.height))
             pygame.draw.rect(surface, RED, (self.rect.x - cam_x, self.rect.y - cam_y, self.rect.width, self.rect.height), 2)
             pygame.draw.circle(surface, RED, (self.rect.x - cam_x + 15, self.rect.y - cam_y + 20), 4)
@@ -871,7 +872,7 @@ while running:
     # =================================================================
     #                        MOUSE & EVENT TRACKING                    
     # =================================================================
-    mouse_pos = pygame.mouse.get_pos() 
+    mouse_pos = pygame.mouse.get_pos() #mouse cursor detection
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -914,7 +915,7 @@ while running:
                 pygame.mixer.music.stop()
                 pygame.mixer.music.load("data/BGMUSIC.mp3")
                 if not is_muted: 
-                    pygame.mixer.music.play(-1)
+                    pygame.mixer.music.play(-1) #loop music
 
             #KEY DOWN SPACE
             if show_info_panel and event.key == pygame.K_SPACE: 
@@ -991,6 +992,7 @@ while running:
             if show_actual_game and not is_victory and not is_dead:
                 if event.key == pygame.K_e:
                     dist_to_door = math.hypot(hero_x - door_rect.centerx, hero_y - door_rect.centery)
+                    #REQUIRED KEYS
                     if selected_level == 3:
                         required_keys = 4
                     elif selected_level == 2:
@@ -998,7 +1000,7 @@ while running:
                     else:
                         required_keys = 2
 
-                    if dist_to_door < 80 and collected_keys >= required_keys:
+                    if dist_to_door < 80 and collected_keys >= required_keys: #GATEKEEPER, HINDI GAGANA VICTORY KUNG WALA ITO
                         is_victory = True
                         victory_anim_timer = 120 
                         pygame.mixer.music.stop()
@@ -1010,18 +1012,18 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if loading_done and not is_dead and not show_victory_screen: 
                 if loading_done:
-                    if show_actual_game and event.button == 1:
+                    if show_actual_game and event.button == 1: #event.button == 1: (LEFT CLICK)
                         current_time = pygame.time.get_ticks()
                         if selected_char_index == 0:
                             if current_time - last_click_time < 300 and dash_cooldown <= 0:
                                 is_dashing = True
                                 dash_timer = 15
-                                dash_cooldown = 60
+                                dash_cooldown = 60 #DASH COOLDOWN
                                 dash_direction = 1 if facing_right else -1
                                 dash_warrior_sfx.play()
                             last_click_time = current_time
 
-                    if selected_char_index != 0 and event.button == 1:
+                    if selected_char_index != 0 and event.button == 1:#event.button == 1: (LEFT CLICK)
                         is_charging = True
                         if selected_char_index == 1: 
                             if show_actual_game: 
@@ -1031,7 +1033,7 @@ while running:
                                         ssj_channel.set_volume(1.0)
                                         ssj_channel.play(super_saiyan_sfx)
                 
-                if show_actual_game and event.button == 3:
+                if show_actual_game and event.button == 3: #event.button == 3: (RIGHT CLICK)
                     is_hit_aiming = True
                     is_charging = False
                     charge_value = 0
@@ -1040,30 +1042,35 @@ while running:
                 #                        IN-GAME UI CLICKS                         
                 # =================================================================
                 if show_actual_game and not show_exit_popup:
+                    #PREVIOUS CLICK
                     if prev_music_rect.collidepoint(event.pos):
                         click_sfx.play()
                         current_music_idx = (current_music_idx - 1) % len(music_playlist)
                         pygame.mixer.music.load(music_playlist[current_music_idx])
                         if not is_muted: pygame.mixer.music.play(-1)
-                        
+                    #NEXT CLICK
                     if next_music_rect.collidepoint(event.pos):
                         click_sfx.play()
                         current_music_idx = (current_music_idx + 1) % len(music_playlist)
                         pygame.mixer.music.load(music_playlist[current_music_idx])
                         if not is_muted: pygame.mixer.music.play(-1)
 
+                #MUSIC ON OFF CLICK
                 if music_btn_rect.collidepoint(event.pos):
-                    click_sfx.play() # DAGDAG: CLICK SFX
+                    click_sfx.play() 
                     is_muted = not is_muted
                     pygame.mixer.music.set_volume(0 if is_muted else 0.5)
                     continue
 
+                #KAPAG NAG SHOW UNG EXIT PANEL
                 if show_exit_confirm:
+                    #EXIT BUTTON
                     if askexit_rect.collidepoint(event.pos): 
                         click_sfx.play()
                         cap.release()
                         pygame.quit()
                         sys.exit()
+                    #CANCEL BUTTON
                     elif askcancel_rect.collidepoint(event.pos): 
                         click_sfx.play() 
                         show_exit_popup = False
@@ -1076,6 +1083,7 @@ while running:
                 #                        STORY & TUTORIAL CLICKS                   
                 # =================================================================
                 if show_story_screen:
+                    #SKIP SHOW STORY SCREEN
                     if skip_rect.collidepoint(event.pos):
                         click_sfx.play() 
                         ssj_channel.stop()
@@ -1111,6 +1119,7 @@ while running:
                     continue
                 
                 if show_actual_game:
+                    #SKIP TUTORIAL
                     if tutorial_active and skip_rect.collidepoint(event.pos):
                         click_sfx.play()
                         tutorial_active = False
@@ -1142,30 +1151,38 @@ while running:
                 # =================================================================
                 #                        MENU SELECTION CLICKS                     
                 # =================================================================
+                #SHOW SECOND MENU
                 if show_second_menu:
+                    #BACK CLICK
                     if not is_dead: 
                         if back_rect.collidepoint(event.pos): 
                             click_sfx.play() 
                             show_second_menu = False
                             selected_level = 0 
+                        #INFO CLICK SECOND MENU
                         elif info_rect.collidepoint(event.pos): 
                             click_sfx.play() 
                             show_exit_popup = True
                             show_info_panel = True
+                        #LEVEL 1 CLICK    
                         elif level1_rect.collidepoint(event.pos):
                             click_sfx.play() 
                             selected_level = 1
+                        #LEVEL 2 CLICK 
                         elif level2_rect.collidepoint(event.pos):
                             click_sfx.play()
                             selected_level = 2
+                        #LEVEL 3 CLICK
                         elif level3_rect.collidepoint(event.pos):
                             click_sfx.play() 
                             selected_level = 3
+                        #START LEVEL CLICK
                         elif start_level_rect.collidepoint(event.pos):
                             click_sfx.play() 
                             if selected_level != 0:
                                 show_second_menu = False
                                 show_character_screen = True
+                            #NOT CLICK START LEVEL
                             else:
                                 show_warning = True
                                 warning_alpha = 0
@@ -1176,18 +1193,20 @@ while running:
                 # =================================================================
                 #                        CHARACTER SELECTION CLICKS                
                 # =================================================================
+                
+                #SHOW CHARACTER SELECTION
                 if show_character_screen:
+
+                    #BACK CLICK CHARACTER SELCTION
                     if back_rect.collidepoint(event.pos): 
                         click_sfx.play() 
                         show_character_screen = False
                         show_second_menu = True 
-                    elif info_rect.collidepoint(event.pos):
-                        click_sfx.play() 
-                        show_exit_popup = True
-                        show_info_panel = True
+                    #LEFT ARROW & RIGHT ARROW CLICK CHARACTER SELCTION
                     elif left_arrow_rect.collidepoint(event.pos) or right_arrow_rect.collidepoint(event.pos):
                         click_sfx.play() 
                         selected_char_index = 1 if selected_char_index == 0 else 0
+                    #CONFIRM CLICK CHARACTER SELCTION
                     elif confirm_char_rect.collidepoint(event.pos):
                         click_sfx.play() 
                         ssj_channel.stop()
@@ -1201,6 +1220,7 @@ while running:
                         if not is_muted:
                             pygame.mixer.music.play(-1)
                     
+                        #SINU NAPILING CHARACTER
                         if selected_char_index == 0:
                             active_hero_right, active_hero_left = warrior_right, warrior_left
                             active_aiming_right, active_aiming_left = warrior_aiming_right, warrior_aiming_left
@@ -1208,6 +1228,7 @@ while running:
                             active_hero_right, active_hero_left = hero_right, hero_left
                             active_aiming_right, active_aiming_left = hero_aiming_right, hero_aiming_left
                         
+                        #KAHIT SINUNG CHARACTER NAPILI ITO MAAPPLY SA UNA
                         hero_x, hero_y = 100, 400
                         hero_health = 200
                         is_dead = False
@@ -1233,10 +1254,16 @@ while running:
                             hero_spawn_sfx.play()
                     continue
 
+        # =================================================================
+        #                            MAIN MENU CLICK           
+        # =================================================================
+                #INFO CLICK
                 if info_rect.collidepoint(event.pos):
                     click_sfx.play() 
                     show_exit_popup = True
                     show_info_panel = True
+
+                #START CLICK
                 elif start_rect.collidepoint(event.pos):
                     click_sfx.play() 
                     show_story_screen = True
@@ -1244,6 +1271,8 @@ while running:
                     story_display_timer = 0 
                     tutorial_step = 0      
                     pygame.mixer.music.stop()
+
+                #EXIT CLICK
                 elif exit_rect.collidepoint(event.pos):
                     click_sfx.play() 
                     show_exit_popup = True
@@ -1253,6 +1282,7 @@ while running:
         #                        MOUSE RELEASE EVENTS (MOUSEUP)            
         # =================================================================
         if event.type == pygame.MOUSEBUTTONUP:
+            #RELEASE LEFT CLICK SUPER SAIYAN
             if show_actual_game:
                 if event.button == 1:
                     is_charging = False
@@ -1266,7 +1296,7 @@ while running:
                 
                 if event.button == 3:
                     is_hit_aiming = False
-
+    #BABALIK SA NORMAL STOP POWERS SUPER SAIYAN
     screen.fill(BLACK) 
 
     # =================================================================
@@ -1274,7 +1304,7 @@ while running:
     # =================================================================
     if not loading_done:
         pygame.draw.rect(screen, WHITE, (0, height - 10, loading_progress, 5))
-        loading_progress += loading_speed
+        loading_progress += loading_speed #LOADING SPEED SIYA UNG NAGBIBIGAY ANIMATION PARA MAPUNO UNG BAR
         if loading_progress >= width:
             loading_done = True
             if not music_started:
@@ -1287,19 +1317,22 @@ while running:
         # =================================================================
         #                        TUTORIAL SYSTEM UPDATES                   
         # =================================================================
+        
+        #TUTOEIAL START
         if tutorial_active:
-            if tutorial_step != previous_tutorial_step:
+            if tutorial_step != previous_tutorial_step: # SA TUWING MALILIPAT UNG NEXT STEP MAY SOUND EFFECTS
                 tutorial_next_sfx.play()  
-                previous_tutorial_step = tutorial_step 
+                previous_tutorial_step = tutorial_step #PARA MALAMAN NEXT STEP
             keys_tut = pygame.key.get_pressed()
             
 
-            alive_enemies_count = len([e for e in stationary_enemies if e.alive])
+            alive_enemies_count = len([e for e in stationary_enemies if e.alive]) #GATEKEEEPER, ITO UNG WAY PARA MATAPOS UNG TUTS
             
             if selected_level == 3: required_keys = 4
             elif selected_level == 2: required_keys = 3
             else: required_keys = 2
 
+            #TUTORIAL STEPS 
             if tutorial_step == 0:
                 if keys_tut[pygame.K_a] or keys_tut[pygame.K_d]: tutorial_step = 1
             elif tutorial_step == 1:
@@ -1337,21 +1370,21 @@ while running:
         # =================================================================
         #                        CAMERA TRACKING                           
         # =================================================================
-        if camera_follow_enabled:
+        if camera_follow_enabled: # Dito ung block of code na kapag true si camera_follow_enabled gagana ito
             target_cam_x = hero_x - (internal_res[0] // 2)
-            target_cam_y = hero_y - (internal_res[1] // 2)
+            target_cam_y = hero_y - (internal_res[1] // 2) # PARA NASA GIT UNG SCREEN
 
             camera_x += (target_cam_x - camera_x) * camera_smoothing
-            camera_y += (target_cam_y - camera_y) * camera_smoothing
+            camera_y += (target_cam_y - camera_y) * camera_smoothing #COMPUTATION PARA SMOOTH UNG FOLLOW NG CAMERA
 
-            if camera_x < 0: camera_x = 0
-            if camera_y < 0: camera_y = 0
+            if camera_x < 0: camera_x = 0 #INAALIS UNG VOID NA ITIM SA BABA
+            if camera_y < 0: camera_y = 0  #HIHINTO SA DULO NG MAP PAG NARATING NG PLAYER UNG DULO
 
             max_x = width - internal_res[0]
-            max_y = height - internal_res[1]
+            max_y = height - internal_res[1]  #KINUKUHA UNG LAKI NG BUONG MAP
 
-            if camera_x > max_x: camera_x = max_x
-            if camera_y > max_y: camera_y = max_y
+            if camera_x > max_x: camera_x = max_x #HIHINTO UNG CAMERA KAPAG NASA DULO NA UNG PLAYER SA MAP(SA KANAN)
+            if camera_y > max_y: camera_y = max_y #ITO PABABA
         else:
             camera_x = 0
             camera_y = 0
@@ -1359,6 +1392,7 @@ while running:
         # =================================================================
         #                        PLAYER SPAWN & VICTORY ANIMATIONS         
         # =================================================================
+        #PLAYER SPAWN ANIMATION
         if is_spawning:
             spawn_timer -= 1
             if hero_spawn_alpha < 255: hero_spawn_alpha += 5
@@ -1375,9 +1409,9 @@ while running:
 
         if is_victory:
             victory_anim_timer -= 1
-            hero_x += (door_rect.centerx - 22 - hero_x) * 0.1
+            hero_x += (door_rect.centerx - 22 - hero_x) * 0.1 # PAGHIGOP SA PLAYER
             hero_y += (door_rect.centery - 32 - hero_y) * 0.1
-            hero_tilt += 20
+            hero_tilt += 20 #SPINNING ANIMATION
             
             if victory_anim_timer <= 0:
                 is_victory = False
@@ -1387,14 +1421,18 @@ while running:
         # =================================================================
         #                        PLAYER HEALTH & DEATH LOGIC               
         # =================================================================
+        
+        #DEATH LOGIC
         if hero_health <= 0:
             hero_health = 0
-            if tutorial_active:
+            if tutorial_active: #IMMO
                 hero_health = 200
                 hero_x, hero_y = 100, 400
                 hero_vel_y = 0
                 invincibility_timer = 60 
                 hero_spawn_sfx.play()
+
+                #DEATH EFFECTS IN REAL GAME 
             elif not is_dead and not death_blink_phase:
                 death_blink_phase = True
                 invincibility_timer = 999 
@@ -1406,20 +1444,23 @@ while running:
         # =================================================================
         #                        PLAYER MOVEMENT & PHYSICS                 
         # =================================================================   
-        if not is_dead and not is_victory and not show_victory_screen: 
+        if not is_dead and not is_victory and not show_victory_screen:#KUNG WALA ITO MAKAKAPAG JUMP PA SI PLAYER KAHIT ASA MAIN MENU NA
+            #MAGE MECHANICS
             current_speed = hero_speed * 2 if power_active else hero_speed
             keys = pygame.key.get_pressed()
             if keys[pygame.K_w] or keys[pygame.K_SPACE]:
                 if not is_jumping and not jump_buffer_used:
                     hero_vel_y = jump_height
                     is_jumping = True
-                    jump_buffer_used = True 
+                    jump_buffer_used = True #ISANG TALON LANG
                     jumphero_sfx.play()
                     shockwaves.append([hero_x + 22, hero_y + 60, 5, 200])
             else:
-                jump_buffer_used = False
+                jump_buffer_used = False #ITO NA UNG KAPAG BINITAWAN MO NA SPACBAR GAGAWIN NIYA NG FALSE UNG JUMP
             
-            if not is_dead and not is_victory:
+            #HORIZONTAL MOVEMENT
+            if not is_dead and not is_victory: #PARA SGURADO NA HINDI NA MAKAKAGALAW UNG PLAYER KAHIT PATAY NA OR NANALO
+               #GINAGAMIT UNG IFLIP IMG
                 if keys[pygame.K_a]: 
                     hero_x -= current_speed
                     facing_right = False
@@ -1431,9 +1472,10 @@ while running:
             #                        DASH MECHANICS                            
             # =================================================================
             if is_dashing:
-                dash_speed = 15
-                hero_x += dash_speed * dash_direction
+                dash_speed = 15 #DASH SPEED
+                hero_x += dash_speed * dash_direction #DEPENDS SA KUNG SAAN NAKAHARAP DUN LANG MAG DADASH
                 
+                #WALL DETECTION
                 hero_rect_dash = pygame.Rect(hero_x, hero_y, 45, 65)
                 for plat_data in platforms:
                     plat_rect = plat_data[0]
@@ -1445,7 +1487,8 @@ while running:
                             hero_x = plat_rect.right
                         is_dashing = False 
                         break
-
+                
+                #GHOST TRAIL
                 dash_timer -= 1
                 if dash_timer % 3 == 0:
                     t_surf = active_hero_right.copy() if facing_right else active_hero_left.copy()
@@ -1462,11 +1505,13 @@ while running:
             # =================================================================
             #                        PLATFORM COLLISION (HORIZONTAL)           
             # =================================================================
+            
+            #ITO UNG WAY PARA DI SIYA MAKALUSOT SA GILID GILID
             hero_rect_active = pygame.Rect(hero_x, hero_y, 45, 65)
             for plat_data in platforms:
                 plat_rect = plat_data[0]
                 is_solid = plat_data[1]
-                if is_solid and hero_rect_active.colliderect(plat_rect):
+                if is_solid and hero_rect_active.colliderect(plat_rect): #PARA MADETETCT UNG BANGGAN
                     if hero_rect_active.centerx < plat_rect.centerx: 
                         hero_x = plat_rect.left - 45
                     else: 
@@ -1476,6 +1521,8 @@ while running:
             # =================================================================
             #                        GRAVITY & PLATFORM COLLISION (VERTICAL)   
             # =================================================================
+            
+            #GRAVITY DETECTION, DITO MASASABI KUNG KAIALN MAHUHULOG KAILAN HIHINTO AT KAILAN PWEDING TUMALON
             if not is_victory:
                 hero_vel_y += gravity
                 hero_y += hero_vel_y
@@ -1516,8 +1563,10 @@ while running:
             # =================================================================
             #                        PARTICLES & VISUAL EFFECTS                
             # =================================================================
+            
+            #EFFECTS NI WARRIOR SA ULO
             if selected_char_index == 0:
-                hover_offset = 0
+                hover_offset = 0 #HINDI NALUTANG
 
                 if not is_dead and not is_victory:
                     if random.random() < 0.4: 
@@ -1529,14 +1578,14 @@ while running:
                             random.randint(6, 9), 
                             (255, 255, 255) 
                         ])
-            else:
-                hover_timer += 0.08
-                hover_offset = math.sin(hover_timer) * 6 
+            else:#EFFECTS NI MAGE
+                hover_timer += 0.08 #FLOAT, BILIS NG FLOAT
+                hover_offset = math.sin(hover_timer) * 6 #LAYO NG FLOAT
                 
                 if not is_dead and not is_victory:
                     is_moving = (keys[pygame.K_a] or keys[pygame.K_d])
                     spawn_chance = 0.4 if is_moving else 0.15
-                    if random.random() < spawn_chance:
+                    if random.random() < spawn_chance: #PARA MAS MADAMING PARTICLES UNG  LALABAS
                         p_color = CYAN if not power_active else GOLD
                         particles.append([
                             [hero_x + 22 + random.randint(-8, 8), hero_y + 60 + hover_offset],
@@ -1544,7 +1593,7 @@ while running:
                             random.randint(3, 5),
                             p_color
                         ])
-                    
+                    #EFFECTS NI MAGE PARANG JET MAY LUMALABAS NA COLOR BLUE SA PAA NIYA HABANG LUMULUTANG
                     if not is_moving and not is_jumping:
                         if random.random() < 0.1: 
                             spark_color = MOSSY_GLOW if not power_active else WHITE
@@ -1559,6 +1608,7 @@ while running:
             #                        PLAYER COMBAT & SHOOTING                  
             # =================================================================
             if not is_dead and not is_victory:
+                #MAGE EFFECTS CHARGE HOLD
                 if selected_char_index != 0:
                     if is_charging and charge_value < 100:
                         charge_value += 2
@@ -1568,12 +1618,14 @@ while running:
                     mouse_world_x = (mouse_pos[0] / zoom_level) + camera_x
                     mouse_world_y = (mouse_pos[1] / zoom_level) + camera_y
                     
+                    #DETECTION NG MOUSE KAPAG SAAN NA CLICK
                     facing_right = True if mouse_world_x > hero_x + 32 else False
                     
                     if shoot_cooldown <= 0:
                         hand_x = hero_x + 50 if facing_right else hero_x + 5
                         hand_y = hero_y + 35 + hover_offset
                         
+                        #WARRIOR AMMO
                         if selected_char_index == 0:
                             if warrior_ammo > 0 and not is_reloading:
                                 bullets.append(Bullet(hand_x, hand_y, mouse_world_x, mouse_world_y, True))
@@ -1587,6 +1639,7 @@ while running:
                             
                     shoot_cooldown -= 1
 
+            #SUPER SAIYAN EFFECTS
             if power_active:
                 power_timer -= 1
                 create_particles(hero_x, hero_y, GOLD)
@@ -1594,7 +1647,8 @@ while running:
                     power_active = False
                     if selected_char_index == 1:
                         ssj_channel.stop()
-                
+
+             #ITO UNG KAPAG MAG MOVE SIYA A OR D PASLANT   
             if not is_dead and not is_victory:
                 if keys[pygame.K_a]:
                     target_tilt = 10 
@@ -1604,14 +1658,14 @@ while running:
                     target_tilt = 0
                 hero_tilt += (target_tilt - hero_tilt) * 0.1
 
+            #MAG SHASHAKE KAPAG NAG CHARGE NA SIYA
                 shake_x = 0
             shake_y = 0
             if is_charging and selected_char_index != 0:
                 intensity = int(charge_value / 20) 
                 shake_x = random.randint(-intensity, intensity)
                 shake_y = random.randint(-intensity, intensity)
-            # ---------------------------------------------
-
+                #GHOST TRAILS KAPAG NAG POWER ACTIVE NA SIYA
                 if selected_char_index != 0:
                     is_moving = (keys[pygame.K_a] or keys[pygame.K_d])
                     if is_moving or power_active:
@@ -1620,6 +1674,8 @@ while running:
                             t_surf = active_hero_right.copy() if facing_right else active_hero_left.copy()
                             if power_active: t_surf.fill(GOLD, special_flags=pygame.BLEND_RGB_ADD)
                             ghost_trails.append([t_surf, (hero_x, hero_y + hover_offset), 150])
+      
+       #ITO UNG SA WARRIOR RELOADING
         if is_reloading:
             reload_timer -= 1
             if reload_timer <= 0:
@@ -1630,11 +1686,13 @@ while running:
         # =================================================================
         #                        RENDERING BACKGROUND & PLATFORMS          
         # =================================================================
-        display_surface.fill(BLACK)
+        display_surface.fill(BLACK) #NILILINIS UNG SCREEN
+        #IITO UNG KAPAG PUMILI KA NG LEVELS ITO LALABAS
         if selected_level == 1: display_surface.blit(game_bg1, (0 - camera_x, 0 - camera_y))
         elif selected_level == 2: display_surface.blit(game_bg2, (0 - camera_x, 0 - camera_y))
         elif selected_level == 3: display_surface.blit(game_bg3, (0 - camera_x, 0 - camera_y))
 
+        #ITO UNG PLATFORMS NA INAAPAKAN NG PLAYER
         for plat_data in platforms:
             plat = plat_data[0]
             if show_platforms:
@@ -1644,6 +1702,7 @@ while running:
         # =================================================================
         #                        EXIT DOOR LOGIC                           
         # =================================================================
+        #EXIT DOOR VICTORY LOGIC
         if is_victory:
             victory_door = door_img.copy()
             alpha_glow = min(255, (120 - victory_anim_timer) * 4.0) 
@@ -1674,6 +1733,8 @@ while running:
         # =================================================================
         #                        ENEMY UPDATES & DRAWING                   
         # =================================================================
+        
+        #ANO MANGYAYARE SA PLAYER PAG NABANGGA UNG ENEMY
         for se in stationary_enemies:
             if isinstance(se, Enemy2Stationary):
                 se.update()
@@ -1684,7 +1745,7 @@ while running:
                         player_hurt_sfx.play()
                         hero_health -= 15
                         invincibility_timer = 50
-                        hero_vel_y = -10
+                        hero_vel_y = -10 #ITO UNG KNOCK UP
                         hero_x += -15 if hero_x < se.rect.centerx else 15
             else:
                 se.update(hero_x)
@@ -1693,8 +1754,9 @@ while running:
         # =================================================================
         #                        COLLECTIBLES (ORBS & KEYS)                
         # =================================================================
+        #WAY NA PARA ALAM KUNG ANDYAN PA UNG ORB WALA NA
         for orb in dropped_orbs[:]:
-            orb.update()
+            orb.update() #PINAPAGANA ANIMATION ORB
             orb.draw(display_surface, camera_x, camera_y)
             if not is_dead and hero_rect_active.colliderect(orb.rect):
                 collected_orbs += 1
@@ -1702,9 +1764,7 @@ while running:
                 dropped_orbs.remove(orb)
                 particles.append([[orb.rect.centerx, orb.rect.centery], [0, -2], 10, WHITE])
         
-        # =================================================================
-        #                        ENEMY 1 BULLETS                           
-        # =================================================================
+
         for k in dropped_keys[:]:
             k.update()
             k.draw(display_surface, camera_x, camera_y)
@@ -1714,7 +1774,11 @@ while running:
                 dropped_keys.remove(k)
                 for _ in range(8):
                     particles.append([[k.rect.centerx, k.rect.centery], [random.uniform(-2,2), random.uniform(-2,2)], 5, GOLD])
-
+        # =================================================================
+        #                        ENEMY 1 BULLETS                           
+        # =================================================================
+        
+        #MAKE SURE NA DI TUMATAGOS UNG BALA NIYA SA MGA PADER
         for eb in enemy1_bullets[:]:
             eb.update()
             eb.draw(display_surface, camera_x, camera_y)
@@ -1733,6 +1797,7 @@ while running:
                 if eb in enemy1_bullets: enemy1_bullets.remove(eb)
                 continue
 
+                #PLAYER DAMAGE LOGIC
             if not is_dead and hero_health > 0 and not is_victory and eb_rect.colliderect(hero_rect_active):
                 if invincibility_timer <= 0:
                     hero_health -= 20
@@ -1748,6 +1813,7 @@ while running:
         # =================================================================
         #                        ENEMY 2 BULLETS                           
         # =================================================================
+        #PLAYER DAMAGE LOGIC
         for e2b in enemy2_bullets[:]:
             e2b.update()
             e2b.draw(display_surface, camera_x, camera_y)
@@ -1769,6 +1835,7 @@ while running:
         # =================================================================
         #                        VFX (TRAILS, SCARFS, PARTICLES)           
         # =================================================================
+        #GHOST TRAILS VISUAL EFFECTS
         for trail in ghost_trails[:]:
             img, pos, alpha = trail
             img.set_alpha(alpha)
@@ -1776,7 +1843,7 @@ while running:
             trail[2] -= 15 
             if trail[2] <= 0: ghost_trails.remove(trail)
 
-      
+        #GHOST TRAILS VISUAL EFFECTS
         for sp in scarf_particles[:]:
             sp[0][0] += sp[1][0]; sp[0][1] += sp[1][1]; sp[2] -= 0.1
             pygame.draw.rect(display_surface, sp[3], (int(sp[0][0] - camera_x), int(sp[0][1] - camera_y), int(sp[2]), int(sp[2])))
@@ -1785,6 +1852,8 @@ while running:
         # =================================================================
         #                        PLAYER BULLET LOGIC                       
         # =================================================================
+        
+        #PLAYER ATTACK LOGIC
         for b in bullets[:]:
             is_alive = b.update()
             if not is_alive:
@@ -1798,7 +1867,7 @@ while running:
             for se in stationary_enemies:
                 if se.alive and se.rect.colliderect(bullet_rect):
 
-                    damage_val = 30 if b.is_laser else 20
+                    damage_val = 30 if b.is_laser else 25
                     se.take_damage(damage_val) 
                     hero_hit_enemy_sfx.play() 
                     if b in bullets: bullets.remove(b)
@@ -1815,11 +1884,12 @@ while running:
                 if b in bullets: bullets.remove(b)
         
         # =================================================================
-        #                        PATROLLING ENEMIES (if any)               
+        #                        PATROLLING ENEMIES             
         # =================================================================
+        #ITO UNG GUMAGALAW NA ENEMY
         for ene in enemies:
             if ene.alive:
-                ene.update(hero_x, hero_y)
+                ene.update(hero_x, hero_y) #ALAM KUNG NASAAN UNG PLAYER
                 ene.draw(display_surface, camera_x, camera_y)
                 if not is_dead and not is_victory and hero_rect_active.colliderect(ene.rect):
                     if invincibility_timer <= 0:
@@ -1832,6 +1902,7 @@ while running:
         # =================================================================
         #                        GENERAL PARTICLES & SHOCKWAVES            
         # =================================================================
+        #ITO UNG PARTICLES SA ULO NI WARRIOR (RENDERING)
         for p in particles[:]:
             p[0][0] += p[1][0]; p[0][1] += p[1][1]; p[2] -= 0.2
             pygame.draw.circle(display_surface, p[3], (int(p[0][0] - camera_x), int(p[0][1] - camera_y)), int(p[2]))
@@ -1843,12 +1914,12 @@ while running:
             ep.draw(display_surface, camera_x, camera_y)
             if ep.lifetime <= 0: explosion_particles.remove(ep)
 
-        for sfp in spawn_fx_particles[:]:
+        for sfp in spawn_fx_particles[:]: #ITO UNG MGA PRATICLES KAPAG NAG SSPAWN UNG PLAYER (SPAWN PARTICLES)
             sfp[0][0] += sfp[1][0]; sfp[0][1] += sfp[1][1]; sfp[2] -= 0.1
             pygame.draw.circle(display_surface, WHITE, (int(sfp[0][0]-camera_x), int(sfp[0][1]-camera_y)), int(sfp[2]))
             if sfp[2] <= 0: spawn_fx_particles.remove(sfp)
 
-        for s in shockwaves[:]:
+        for s in shockwaves[:]: # ITO NAMAN UNG PARTICLES NA KAPAG NAG JUMP (JUMP PARTICLE)
             s[2] += 12; s[3] -= 10
             if s[3] <= 0: shockwaves.remove(s); continue
             shock_rect = pygame.Rect(s[0] - s[2], s[1] - s[2], s[2]*2, s[2]*2)
@@ -1862,6 +1933,7 @@ while running:
         # =================================================================
         #                        PLAYER RENDERING (SPRITES)                
         # =================================================================
+        #pagpapalit ng sprites
         if is_hit_aiming:
             char_disp = active_aiming_right.copy() if facing_right else active_aiming_left.copy()
             # Visual effects based on class
@@ -1877,7 +1949,7 @@ while running:
                 char_disp.fill((255, 215, 0), special_flags=pygame.BLEND_RGB_ADD)
             elif is_charging and not is_hit_aiming:
                 char_disp.fill((charge_value * 2, 255, 255), special_flags=pygame.BLEND_RGB_ADD)
-
+        #liliit ung hero kapag nahigop siya
         if is_victory:
             v_scale = max(0.1, victory_anim_timer / 120)
             char_disp = pygame.transform.scale(char_disp, (int(45*v_scale), int(65*v_scale)))
@@ -1885,6 +1957,7 @@ while running:
         rotated_hero = pygame.transform.rotate(char_disp, hero_tilt)
         new_rect = rotated_hero.get_rect(center=char_disp.get_rect(topleft=(hero_x, hero_y + hover_offset)).center)
 
+        #BLINK NG DEATHS
         is_visible = True
         if death_blink_phase:
             death_timer -= 1
@@ -1897,7 +1970,7 @@ while running:
                     defeat_sound_sfx.play() 
                 is_dead = True 
         # --------------------------------------------------------
-
+        #ITO UNG KAPAG NATAMAAN MAY INVICIBLE (HIT INVISIBLE)
         if not is_dead and is_visible:
             rotated_hero.set_alpha(hero_spawn_alpha)
             if invincibility_timer > 0 and (invincibility_timer // 5) % 2 == 0:
@@ -1911,7 +1984,7 @@ while running:
             else: 
                 display_surface.blit(rotated_hero, (new_rect.x - camera_x + shake_x, new_rect.y - camera_y + shake_y))
 
-        
+        #CHARGE BAR UI
         if not is_victory and is_charging and selected_char_index != 0:
             bar_w = 40
             pygame.draw.rect(display_surface, BLACK, (hero_x - camera_x - 3, hero_y + hover_offset - camera_y - 30, bar_w + 6, 10))
@@ -1949,7 +2022,7 @@ while running:
         # Border (White) Outline ng bar
         pygame.draw.rect(screen, WHITE, (bar_x, bar_y, bar_width, bar_height), 2)
 
-        # 1. BULLET COUNTER UI (Pinakataas)
+        # BULLET COUNTER UI (Pinakataas)
         if selected_char_index == 0:
             bullet_ui_rect = bullet_ui_img.get_rect(topleft=(25, 80)) 
             screen.blit(bullet_ui_img, bullet_ui_rect)
@@ -1987,13 +2060,13 @@ while running:
                     low_ammo_rect = low_ammo_txt.get_rect(center=(width // 2, height - 500))
                     screen.blit(low_ammo_txt, low_ammo_rect)
 
-        # 2. ORB COUNTER UI (Inibaba nang kaunti)
+        # ORB COUNTER UI (Inibaba nang kaunti)
         orb_ui_rect = orb_ui_img.get_rect(topleft=(25, 125)) 
         screen.blit(orb_ui_img, orb_ui_rect)
         orb_count_txt = orb_font.render(f"x {collected_orbs}", True, GOLD)
         screen.blit(orb_count_txt, (orb_ui_rect.right + 10, orb_ui_rect.top + 5))
 
-        # 3. KEY COUNTER UI (Pinakaibaba)
+        # KEY COUNTER UI (Pinakaibaba)
         key_ui_rect = key_ui_img.get_rect(topleft=(25, 170)) 
         screen.blit(key_ui_img, key_ui_rect)
         
@@ -2011,6 +2084,8 @@ while running:
         # =================================================================
         #                        TUTORIAL OVERLAY UI                       
         # =================================================================
+        
+        #TUTORIAL BOX
         if tutorial_active:
             tut_box_surf = pygame.Surface((550, 65), pygame.SRCALPHA)
             tut_box_surf.fill((0, 0, 0, 200))
@@ -2042,6 +2117,8 @@ while running:
         # =================================================================
         #                        MUSIC PLAYER UI RENDERING                 
         # =================================================================
+        
+        #MUSIC BOX
         if not show_story_screen and not show_exit_popup and not is_dead and not show_victory_screen:
             # Transparent Background Box (Longer Square style)
             s = pygame.Surface((220, 55), pygame.SRCALPHA)
@@ -2112,6 +2189,8 @@ while running:
         # =================================================================
         #                        INFO PANEL / POPUP (IN-GAME)              
         # =================================================================
+        
+        #POP UP INFO PANEL
         if show_exit_popup:
             screen.blit(second_blur, (0, 0))
             if show_info_panel:
@@ -2172,7 +2251,7 @@ while running:
         else:
             screen.blit(current_music_img, music_btn_rect)
         
-            if not show_character_screen: # <--- DAGDAG MO ITONG LINE NA ITO
+            if not show_character_screen: 
                 if info_rect.collidepoint(mouse_pos) and not show_exit_popup:
                     i_hover = pygame.transform.scale(info_img, (65, 65))
                     screen.blit(i_hover, i_hover.get_rect(center=info_rect.center))
@@ -2208,25 +2287,26 @@ while running:
         else:
             screen.fill(BLACK) 
 
+        # Para sa START Button HOVER (START HOVER)
         if start_rect.collidepoint(mouse_pos) and not show_story_screen and not show_exit_popup and not show_second_menu:
             s_hover = pygame.transform.scale(start_img, (300, 100))
             screen.blit(s_hover, s_hover.get_rect(center=start_rect.center))
         else:
             screen.blit(start_img, start_rect)
-
+        # Para sa EXIT Button HOVER (EXIT HOVER)
         if exit_rect.collidepoint(mouse_pos) and not show_story_screen and not show_exit_popup and not show_second_menu:
             e_hover = pygame.transform.scale(exit_img, (300, 100))
             screen.blit(e_hover, e_hover.get_rect(center=exit_rect.center))
         else:
             screen.blit(exit_img, exit_rect)
-        
+        # MUSIC ON HOVER & MUSIC OFF HOVER
         current_music_img = music_off_img if is_muted else music_on_img
         if music_btn_rect.collidepoint(mouse_pos) and not show_exit_popup and not show_story_screen:
             m_hover = pygame.transform.scale(current_music_img, (120, 62))
             screen.blit(m_hover, m_hover.get_rect(center=music_btn_rect.center))
         else:
             screen.blit(current_music_img, music_btn_rect)
-        
+        #INFO HOVER
         if info_rect.collidepoint(mouse_pos) and not show_exit_popup and not show_story_screen:
             i_hover = pygame.transform.scale(info_img, (65, 65))
             screen.blit(i_hover, i_hover.get_rect(center=info_rect.center))
